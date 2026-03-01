@@ -1,5 +1,6 @@
 import type {
   Actor,
+  Priority,
   MarkerCategory,
   KineticType,
   KineticStatus,

@@ -75,3 +75,18 @@ export const STATUS_META: Record<MarkerStatus, StatusMeta> = {
 export const KINETIC_STATUSES:      KineticStatus[]      = ['COMPLETE', 'INTERCEPTED', 'IMPACTED'];
 export const INSTALLATION_STATUSES: InstallationStatus[] = ['ACTIVE', 'DEGRADED', 'STRUCK', 'DAMAGED', 'DESTROYED'];
 export const ALL_STATUSES:          MarkerStatus[]       = [...KINETIC_STATUSES, ...INSTALLATION_STATUSES];
+
+// ─── Level 0: Priority ────────────────────────────────────────────────────────
+// Assigned per-record based on strategic importance, not just severity.
+
+export type Priority = 'P1' | 'P2' | 'P3';
+
+type PriorityMeta = { label: string; description: string; cssVar: string; rgb: [number, number, number] };
+
+export const PRIORITY_META: Record<Priority, PriorityMeta> = {
+  P1: { label: 'P1',  description: 'Critical — changes the war',         cssVar: 'var(--danger)',  rgb: [231, 106, 110] },
+  P2: { label: 'P2',  description: 'Major — significant battlefield impact', cssVar: 'var(--warning)', rgb: [236, 154,  60] },
+  P3: { label: 'P3',  description: 'Standard — background / peripheral', cssVar: 'var(--t3)',      rgb: [143, 153, 168] },
+};
+
+export const ALL_PRIORITIES: Priority[] = ['P1', 'P2', 'P3'];

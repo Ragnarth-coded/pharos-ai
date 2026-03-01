@@ -5,7 +5,7 @@ export function SectionDivider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2.5 mb-2">
       <span className="label text-[8px] shrink-0">{label}</span>
-      <Separator className="flex-1" style={{ background: 'var(--bd-s)' }} />
+      <Separator className="flex-1 bg-[var(--bd-s)]" />
     </div>
   );
 }
