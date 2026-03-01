@@ -826,7 +826,7 @@ export default function FullMapPage() {
           ))}
         </div>
 
-        {/* Coords — bottom right */}
+        {/* Coords + attribution — bottom right */}
         <div
           style={{
             position: 'absolute',
@@ -839,9 +839,14 @@ export default function FullMapPage() {
             fontFamily: 'monospace',
             color: '#5C7080',
             pointerEvents: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+            alignItems: 'flex-end',
           }}
         >
-          {viewState.latitude.toFixed(2)}°N {viewState.longitude.toFixed(2)}°E
+          <span>{viewState.latitude.toFixed(2)}°N {viewState.longitude.toFixed(2)}°E</span>
+          <span style={{ color: '#2A2F38', fontSize: 8 }}>© CARTO · © OpenStreetMap contributors</span>
         </div>
       </div>
     </div>
