@@ -5,6 +5,7 @@ import { Users, CheckCircle, ArrowRight } from 'lucide-react';
 import { ACTORS, ACT_C, STA_C, type Actor } from '@/data/iranActors';
 import { getPostsForActor }              from '@/data/iranXPosts';
 import XPostCard                         from '@/components/dashboard/XPostCard';
+import Flag from '@/components/dashboard/Flag';
 
 const TYPE_C: Record<string, string> = {
   MILITARY:    'var(--danger)',
@@ -60,7 +61,7 @@ function ActorsInner() {
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                    {actor.flag && <span style={{ fontSize: 13 }}>{actor.flag}</span>}
+                    {actor.countryCode && <Flag code={actor.countryCode} size={18} />}
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t1)', textAlign: 'left' }}>{actor.name}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -109,7 +110,7 @@ function ActorDossier({ actor, tab, setTab }: { actor: Actor; tab: 'intel' | 'si
           ACTOR INTELLIGENCE DOSSIER // PHAROS THREAT ANALYSIS // OPERATION EPIC FURY
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}>
-          {actor.flag && <span style={{ fontSize: 32, lineHeight: 1, flexShrink: 0 }}>{actor.flag}</span>}
+          {actor.countryCode && <Flag code={actor.countryCode} size={36} />}
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <h1 style={{ fontSize: 16, fontWeight: 700, color: 'var(--t1)', lineHeight: 1.1 }}>

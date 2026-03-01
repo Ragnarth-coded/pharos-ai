@@ -6,6 +6,7 @@ import { EVENTS }    from '@/data/iranEvents';
 import { ACTORS, ACT_C, STA_C } from '@/data/iranActors';
 import { X_POSTS }   from '@/data/iranXPosts';
 import XPostCard     from '@/components/dashboard/XPostCard';
+import Flag from '@/components/dashboard/Flag';
 
 const SEV_C: Record<string, string> = {
   CRITICAL: 'var(--danger)',
@@ -202,7 +203,7 @@ export default function OverviewPage() {
                       {/* Flag + name */}
                       <div style={{ flexShrink: 0, width: 110 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                          {actor.flag && <span style={{ fontSize: 14 }}>{actor.flag}</span>}
+                          {actor.countryCode && <Flag code={actor.countryCode} size={18} />}
                           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t1)' }}>{actor.name}</span>
                         </div>
                         {/* Stance badge */}

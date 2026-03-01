@@ -16,7 +16,7 @@ export interface Actor {
   id: string;
   name: string;
   fullName: string;
-  flag?: string;
+  countryCode?: string;
   type: 'STATE' | 'NON-STATE' | 'ORGANIZATION' | 'INDIVIDUAL';
   activityLevel: ActivityLevel;
   activityScore: number; // 0-100
@@ -34,7 +34,7 @@ export const ACTORS: Actor[] = [
     id: 'us',
     name: 'United States',
     fullName: 'United States — DoD / CENTCOM',
-    flag: '🇺🇸',
+    countryCode: 'us',
     type: 'STATE',
     activityLevel: 'CRITICAL',
     activityScore: 97,
@@ -64,7 +64,7 @@ export const ACTORS: Actor[] = [
     id: 'idf',
     name: 'Israel',
     fullName: 'Israel — IDF / Mossad',
-    flag: '🇮🇱',
+    countryCode: 'il',
     type: 'STATE',
     activityLevel: 'CRITICAL',
     activityScore: 96,
@@ -95,7 +95,7 @@ export const ACTORS: Actor[] = [
     id: 'iran',
     name: 'Iran',
     fullName: 'Islamic Republic of Iran — Transitional Government',
-    flag: '🇮🇷',
+    countryCode: 'ir',
     type: 'STATE',
     activityLevel: 'CRITICAL',
     activityScore: 88,
@@ -126,7 +126,7 @@ export const ACTORS: Actor[] = [
     id: 'irgc',
     name: 'IRGC',
     fullName: 'Islamic Revolutionary Guard Corps',
-    flag: '🇮🇷',
+    countryCode: 'ir',
     type: 'NON-STATE',
     activityLevel: 'CRITICAL',
     activityScore: 82,
@@ -153,7 +153,7 @@ export const ACTORS: Actor[] = [
     id: 'houthis',
     name: 'Houthis',
     fullName: 'Houthi Movement / Ansar Allah — Yemen',
-    flag: '🇾🇪',
+    countryCode: 'ye',
     type: 'NON-STATE',
     activityLevel: 'HIGH',
     activityScore: 71,
@@ -177,7 +177,7 @@ export const ACTORS: Actor[] = [
     id: 'russia',
     name: 'Russia',
     fullName: 'Russian Federation',
-    flag: '🇷🇺',
+    countryCode: 'ru',
     type: 'STATE',
     activityLevel: 'ELEVATED',
     activityScore: 52,

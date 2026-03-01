@@ -1,6 +1,7 @@
 'use client';
 import { CONFLICT } from '@/data/iranConflict';
 import { ACTORS }   from '@/data/iranActors';
+import Flag from '@/components/dashboard/Flag';
 import { EVENTS }   from '@/data/iranEvents';
 
 const SOURCES = [
@@ -103,7 +104,7 @@ export default function BriefPage() {
             {majorActors.map(actor => (
               <div key={actor.id} style={{ padding: '12px 16px', background: 'var(--bg-2)', border: '1px solid var(--bd)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  {actor.flag && <span style={{ fontSize: 16 }}>{actor.flag}</span>}
+                  {actor.countryCode && <Flag code={actor.countryCode} size={18} />}
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--t1)' }}>{actor.fullName}</span>
                   <span style={{ fontSize: 8, fontWeight: 700, padding: '2px 6px', background: 'var(--danger-dim)', color: 'var(--danger)', marginLeft: 'auto' }}>
                     {actor.activityLevel}
