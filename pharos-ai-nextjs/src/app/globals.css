@@ -93,6 +93,13 @@
   ::-webkit-scrollbar-track    { background: transparent; }
   ::-webkit-scrollbar-thumb    { background: var(--bd); }
   ::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+
+  /* Timeline: prominent horizontal scrollbar */
+  .timeline-scroll::-webkit-scrollbar          { height: 10px; }
+  .timeline-scroll::-webkit-scrollbar-track    { background: rgba(255,255,255,0.03); border-radius: 5px; margin: 0 20px; }
+  .timeline-scroll::-webkit-scrollbar-thumb    { background: rgba(255,255,255,0.15); border-radius: 5px; border: 2px solid transparent; background-clip: padding-box; }
+  .timeline-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); border-radius: 5px; border: 2px solid transparent; background-clip: padding-box; }
+  .timeline-scroll { scrollbar-width: auto; scrollbar-color: rgba(255,255,255,0.15) rgba(255,255,255,0.03); }
 }
 
 /* ── Components — design system primitives ──────────────────────────────────
