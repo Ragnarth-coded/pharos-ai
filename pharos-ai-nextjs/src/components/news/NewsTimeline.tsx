@@ -343,7 +343,7 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)`,
             backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
             backgroundPosition: `${pan.x % (24 * zoom)}px ${pan.y % (24 * zoom)}px`,
           }}
@@ -361,30 +361,30 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
         >
           {/* ─── Horizontal spine ─── */}
           <div className="absolute left-0 right-0" style={{ top: `${spineY}px` }}>
-            <div className="absolute inset-x-0 h-[2px] bg-white/10" />
+            <div className="absolute inset-x-0 h-[2px] bg-white/20" />
             <div
-              className="absolute inset-x-0 h-px"
-              style={{ boxShadow: '0 0 12px rgba(255,255,255,0.04), 0 0 3px rgba(255,255,255,0.08)' }}
+              className="absolute inset-x-0 h-[2px]"
+              style={{ boxShadow: '0 0 16px rgba(255,255,255,0.06), 0 0 4px rgba(255,255,255,0.12)' }}
             />
           </div>
 
           {/* Axis labels */}
           <div
-            className="absolute mono text-[9px] text-[var(--t4)] tracking-widest"
-            style={{ top: `${spineY - 26}px`, left: '20px', opacity: 0.35 }}
+            className="absolute mono text-[10px] text-white/50 tracking-widest font-bold"
+            style={{ top: `${spineY - 28}px`, left: '20px' }}
           >
             ▲ IMPORTANT
           </div>
           <div
-            className="absolute mono text-[9px] text-[var(--t4)] tracking-widest"
-            style={{ top: `${spineY + 14}px`, left: '20px', opacity: 0.35 }}
+            className="absolute mono text-[10px] text-white/50 tracking-widest font-bold"
+            style={{ top: `${spineY + 16}px`, left: '20px' }}
           >
             ▼ NICHE
           </div>
 
           <div
-            className="absolute mono text-[9px] text-[var(--t4)]"
-            style={{ top: `${spineY - 6}px`, right: '30px', opacity: 0.35 }}
+            className="absolute mono text-[10px] text-white/50 font-bold"
+            style={{ top: `${spineY - 6}px`, right: '30px' }}
           >
             NOW →
           </div>
@@ -392,19 +392,29 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
           {/* ─── Hour markers ─── */}
           {layout.hourMarkers.map(({ hour, x }) => (
             <div key={hour.toISOString()}>
+              {/* Full-height column line */}
               <div
-                className="absolute w-px bg-white/8"
+                className="absolute w-px bg-white/[0.06]"
                 style={{ left: `${x}px`, top: '0', bottom: '0' }}
               />
+              {/* Time label ABOVE spine */}
               <div
-                className="absolute mono text-[11px] font-bold text-[var(--t3)] whitespace-nowrap"
-                style={{ left: `${x - 16}px`, top: `${spineY + 24}px` }}
+                className="absolute mono text-[14px] font-bold text-white/70 whitespace-nowrap"
+                style={{ left: `${x - 20}px`, top: `${spineY - 40}px` }}
               >
                 {formatHour(hour)}
               </div>
+              {/* Time label BELOW spine (mirror) */}
               <div
-                className="absolute w-3 h-3 rounded-full bg-[var(--bg-app)] border-2 border-[var(--t4)]"
-                style={{ left: `${x - 6}px`, top: `${spineY - 6}px` }}
+                className="absolute mono text-[14px] font-bold text-white/70 whitespace-nowrap"
+                style={{ left: `${x - 20}px`, top: `${spineY + 20}px` }}
+              >
+                {formatHour(hour)}
+              </div>
+              {/* Large dot on spine */}
+              <div
+                className="absolute w-4 h-4 rounded-full bg-[var(--bg-app)] border-2 border-white/40"
+                style={{ left: `${x - 8}px`, top: `${spineY - 8}px` }}
               />
             </div>
           ))}
@@ -435,7 +445,7 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
                     width: '1px',
                     height: `${Math.max(connectorH, 0)}px`,
                     backgroundColor: color,
-                    opacity: isHovered ? 0.6 : 0.12,
+                    opacity: isHovered ? 0.7 : 0.25,
                   }}
                 />
                 {/* Spine dot */}
@@ -444,13 +454,13 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
                   style={{
                     left: `${cardCenter - 4}px`,
                     top: `${spineY - 4}px`,
-                    width: isHovered ? '10px' : '6px',
-                    height: isHovered ? '10px' : '6px',
+                    width: isHovered ? '12px' : '8px',
+                    height: isHovered ? '12px' : '8px',
                     marginLeft: isHovered ? '-2px' : '0',
                     marginTop: isHovered ? '-2px' : '0',
                     backgroundColor: color,
-                    opacity: isHovered ? 0.9 : 0.35,
-                    boxShadow: isHovered ? `0 0 10px ${color}60` : 'none',
+                    opacity: isHovered ? 1 : 0.6,
+                    boxShadow: isHovered ? `0 0 12px ${color}80` : 'none',
                   }}
                 />
 
@@ -476,45 +486,52 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
                         <img
                           src={article.imageUrl}
                           alt=""
-                          className={`w-full h-full object-cover transition-all duration-200 ${isHovered ? 'opacity-100 scale-[1.02]' : 'opacity-50'}`}
+                          className={`w-full h-full object-cover transition-all duration-200 ${isHovered ? 'opacity-100 scale-[1.02]' : 'opacity-80'}`}
                           loading="lazy"
                           onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
                         />
                       </div>
                     )}
-                    <div className="px-3 py-2">
-                      <div className="flex items-center gap-1.5 mb-1">
+                    <div className="px-3 py-2.5">
+                      {/* Source + timestamp row */}
+                      <div className="flex items-center gap-2 mb-1.5">
                         <div
-                          className="px-1.5 py-0.5 rounded text-[7px] mono font-bold leading-none"
-                          style={{ backgroundColor: `${color}20`, color, border: `1px solid ${color}30` }}
+                          className="px-1.5 py-0.5 rounded text-[8px] mono font-bold leading-none"
+                          style={{ backgroundColor: `${color}25`, color, border: `1px solid ${color}40` }}
                         >
                           {article.feed.name.length > 14 ? article.feed.id.toUpperCase() : article.feed.name.toUpperCase()}
                         </div>
                         {article.feed.stateFunded && (
-                          <span className="text-[6px] mono font-bold text-amber-400/70 tracking-wider">STATE</span>
+                          <span className="text-[7px] mono font-bold text-amber-400 tracking-wider">STATE</span>
                         )}
-                        <span className="text-[7px] mono text-[var(--t4)] ml-auto shrink-0">
-                          {formatHour(article.time)} · {formatTimeAgo(article.time)}
+                        <span className="mono text-[9px] font-bold text-white/80 ml-auto shrink-0">
+                          {formatHour(article.time)}
+                        </span>
+                        <span className="mono text-[8px] text-white/50 shrink-0">
+                          {formatTimeAgo(article.time)}
                         </span>
                       </div>
-                      <h4 className="text-[11px] text-[var(--t1)] font-medium leading-tight group-hover:text-white line-clamp-2">
+                      {/* Title */}
+                      <h4 className="text-[12px] text-white font-medium leading-snug group-hover:text-white line-clamp-2">
                         {article.title}
                       </h4>
-                      {isHovered && article.snippet && (
-                        <p className="text-[9px] text-[var(--t4)] mt-1 leading-relaxed line-clamp-2">
+                      {/* Snippet — always visible, not just on hover */}
+                      {article.snippet && (
+                        <p className="text-[10px] text-white/60 mt-1 leading-relaxed line-clamp-2">
                           {article.snippet}
                         </p>
                       )}
-                      <div className="flex items-center gap-1.5 mt-1.5">
+                      {/* Country + tier */}
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[8px] mono font-bold text-white/50">{article.feed.country}</span>
                         <div className="flex gap-0.5">
                           {Array.from({ length: 5 - article.feed.tier }).map((_, i) => (
-                            <div key={i} className="w-1 h-1 rounded-full" style={{ backgroundColor: color, opacity: 0.6 }} />
+                            <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color, opacity: 0.8 }} />
                           ))}
                           {Array.from({ length: article.feed.tier - 1 }).map((_, i) => (
-                            <div key={i} className="w-1 h-1 rounded-full bg-white/10" />
+                            <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/15" />
                           ))}
                         </div>
-                        <span className="text-[7px] mono text-[var(--t4)]">{article.feed.country}</span>
                       </div>
                     </div>
                   </div>
@@ -531,7 +548,7 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
         </div>
 
         {/* ─── Zoom level indicator (bottom-left) ─── */}
-        <div className="absolute bottom-4 left-4 mono text-[9px] text-[var(--t4)] opacity-50 pointer-events-none">
+        <div className="absolute bottom-4 left-4 mono text-[10px] text-white/40 pointer-events-none">
           {zoomPct}% · scroll to zoom · drag to pan
         </div>
       </div>
