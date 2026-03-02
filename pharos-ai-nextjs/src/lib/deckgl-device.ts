@@ -27,6 +27,11 @@ type WindowWithLuma = Window & {
 if (typeof window !== 'undefined') {
   const win = window as WindowWithLuma;
 
+  // Block WebGPU entirely so luma.gl never attempts navigator.gpu.requestAdapter()
+  // This prevents the maxTextureDimension2D crash when adapter is null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (navigator as any).gpu = undefined;
+
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { luma } = require('@luma.gl/core') as {
     luma: {

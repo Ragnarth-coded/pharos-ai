@@ -255,6 +255,10 @@
   /* No-underline links */
   .no-underline { text-decoration: none; color: inherit; }
 
-  /* Hide map attribution */
-  .maplibregl-ctrl-attrib { display: none !important; }
+  /* Hide map attribution / copyright */
+  .maplibregl-ctrl-attrib,
+  .maplibregl-ctrl-bottom-right,
+  .maplibregl-ctrl-bottom-left,
+  .mapboxgl-ctrl-attrib,
+  .mapboxgl-ctrl-bottom-right { display: none !important; }
 }

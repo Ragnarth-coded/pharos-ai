@@ -24,7 +24,7 @@ export default function MapLegend({ hasPanel }: Props) {
   return (
     <div style={{
       position:      'absolute',
-      bottom:        16,
+      bottom:        56,
       left:          12,
       background:    'rgba(28,33,39,0.92)',
       border:        '1px solid var(--bd)',

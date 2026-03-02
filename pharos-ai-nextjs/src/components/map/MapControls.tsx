@@ -17,7 +17,7 @@ export default function MapControls({ viewState, mapStyle, hasPanel, onStyleChan
       {/* Map style switcher */}
       <div style={{
         position:   'absolute',
-        bottom:     46,
+        bottom:     86,
         right,
         display:    'flex',
         overflow:   'hidden',
@@ -52,7 +52,7 @@ export default function MapControls({ viewState, mapStyle, hasPanel, onStyleChan
         className="mono"
         style={{
           position:   'absolute',
-          bottom:     16,
+          bottom:     56,
           right,
           background: 'rgba(28,33,39,0.85)',
           border:     '1px solid var(--bd)',

@@ -15,16 +15,12 @@ type Props = {
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
 const ALL_RECORDS = [...STRIKE_ARCS, ...MISSILE_TRACKS, ...TARGETS, ...ALLIED_ASSETS, ...THREAT_ZONES];
+const BUCKETS = 60;
 
-function fmtDay(ms: number) {
+function fmtLabel(ms: number) {
   const d = new Date(ms);
   const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase();
-  return `${mon} ${d.getUTCDate()}`;
-}
-
-function fmtHour(ms: number) {
-  const d = new Date(ms);
-  return `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
+  return `${mon} ${d.getUTCDate()} ${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────────
@@ -32,89 +28,89 @@ function fmtHour(ms: number) {
 export default function MapTimeline({ timeExtent, timeRange, onTimeRange }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<'left' | 'right' | 'range' | null>(null);
-  const [dragStart, setDragStart] = useState<{ x: number; range: [number, number] } | null>(null);
+  const dragRef = useRef<{ startX: number; startRange: [number, number] } | null>(null);
+  const didDragRef = useRef(false);
 
   const [tMin, tMax] = timeExtent;
   const span = tMax - tMin;
   const rng = timeRange ?? timeExtent;
 
-  // Histogram: count events per bucket
-  const BUCKETS = 80;
+  // Histogram
   const histogram = useMemo(() => {
-    const buckets = new Array(BUCKETS).fill(0);
+    const b = new Array(BUCKETS).fill(0);
     const step = span / BUCKETS;
     for (const r of ALL_RECORDS) {
       const t = new Date(r.timestamp).getTime();
       const i = Math.min(BUCKETS - 1, Math.max(0, Math.floor((t - tMin) / step)));
-      buckets[i]++;
+      b[i]++;
     }
-    const maxVal = Math.max(1, ...buckets);
-    return buckets.map(v => v / maxVal);
+    const mx = Math.max(1, ...b);
+    return b.map(v => v / mx);
   }, [tMin, span]);
 
-  // Day boundaries
+  // Day ticks
   const dayTicks = useMemo(() => {
     const ticks: { label: string; pct: number }[] = [];
-    const startDay = new Date(tMin);
-    startDay.setUTCHours(0, 0, 0, 0);
-    let d = startDay.getTime();
+    const start = new Date(tMin);
+    start.setUTCHours(0, 0, 0, 0);
+    let d = start.getTime();
     while (d <= tMax + 86400000) {
       const pct = ((d - tMin) / span) * 100;
-      if (pct >= 0 && pct <= 100) ticks.push({ label: fmtDay(d), pct });
+      if (pct >= -5 && pct <= 105) ticks.push({ label: fmtLabel(d).split(' ').slice(0, 2).join(' '), pct: Math.max(0, Math.min(100, pct)) });
       d += 86400000;
     }
     return ticks;
   }, [tMin, tMax, span]);
 
   const toPct = (ms: number) => ((ms - tMin) / span) * 100;
-  const toMs = (pct: number) => tMin + (pct / 100) * span;
-
-  const getMousePct = useCallback((e: React.MouseEvent | MouseEvent) => {
-    if (!trackRef.current) return 0;
+  const toMs = useCallback((clientX: number) => {
+    if (!trackRef.current) return tMin;
     const rect = trackRef.current.getBoundingClientRect();
-    return Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-  }, []);
+    const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    return tMin + (pct / 100) * span;
+  }, [tMin, span]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent, handle: 'left' | 'right' | 'range') => {
     e.preventDefault();
+    e.stopPropagation();
     setDragging(handle);
-    setDragStart({ x: e.clientX, range: [rng[0], rng[1]] });
+    dragRef.current = { startX: e.clientX, startRange: [rng[0], rng[1]] };
+    didDragRef.current = false;
   }, [rng]);
 
   useEffect(() => {
     if (!dragging) return;
     const handleMove = (e: MouseEvent) => {
-      const pct = getMousePct(e);
-      const ms = toMs(pct);
+      didDragRef.current = true;
+      const ms = toMs(e.clientX);
       if (dragging === 'left') {
         onTimeRange([Math.min(ms, rng[1] - span * 0.01), rng[1]]);
       } else if (dragging === 'right') {
         onTimeRange([rng[0], Math.max(ms, rng[0] + span * 0.01)]);
-      } else if (dragging === 'range' && dragStart) {
-        const dx = e.clientX - dragStart.x;
+      } else if (dragging === 'range' && dragRef.current) {
         const rect = trackRef.current?.getBoundingClientRect();
         if (!rect) return;
-        const dMs = (dx / rect.width) * span;
-        let newL = dragStart.range[0] + dMs;
-        let newR = dragStart.range[1] + dMs;
-        if (newL < tMin) { newR += tMin - newL; newL = tMin; }
-        if (newR > tMax) { newL -= newR - tMax; newR = tMax; }
-        onTimeRange([newL, newR]);
+        const dMs = ((e.clientX - dragRef.current.startX) / rect.width) * span;
+        let nL = dragRef.current.startRange[0] + dMs;
+        let nR = dragRef.current.startRange[1] + dMs;
+        if (nL < tMin) { nR += tMin - nL; nL = tMin; }
+        if (nR > tMax) { nL -= nR - tMax; nR = tMax; }
+        onTimeRange([nL, nR]);
       }
     };
-    const handleUp = () => { setDragging(null); setDragStart(null); };
+    const handleUp = () => setDragging(null);
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('mouseup', handleUp);
     return () => { window.removeEventListener('mousemove', handleMove); window.removeEventListener('mouseup', handleUp); };
-  }, [dragging, dragStart, rng, tMin, tMax, span, getMousePct, onTimeRange, toMs]);
+  }, [dragging, rng, tMin, tMax, span, toMs, onTimeRange]);
 
+  // Only handle click if we didn't just finish dragging
   const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    if (dragging) return;
-    const pct = getMousePct(e);
-    const ms = toMs(pct);
-    const windowSize = span * 0.15;
-    onTimeRange([Math.max(tMin, ms - windowSize / 2), Math.min(tMax, ms + windowSize / 2)]);
-  }, [dragging, getMousePct, toMs, span, tMin, tMax, onTimeRange]);
+    if (didDragRef.current) { didDragRef.current = false; return; }
+    const ms = toMs(e.clientX);
+    const w = span * 0.15;
+    onTimeRange([Math.max(tMin, ms - w / 2), Math.min(tMax, ms + w / 2)]);
+  }, [toMs, span, tMin, tMax, onTimeRange]);
 
   const leftPct = toPct(rng[0]);
   const rightPct = toPct(rng[1]);
@@ -122,97 +118,83 @@ export default function MapTimeline({ timeExtent, timeRange, onTimeRange }: Prop
 
   return (
     <div
-      className="flex-shrink-0"
       style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
-        background: 'rgba(28,33,39,0.95)', borderTop: '1px solid var(--bd)',
-        padding: '6px 16px 10px', userSelect: 'none',
+        background: 'rgba(28,33,39,0.92)', borderTop: '1px solid var(--bd)',
+        padding: '4px 16px 6px', userSelect: 'none',
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-1">
-        <span className="label" style={{ color: 'var(--t4)' }}>TIME</span>
-        <div className="flex items-center gap-2">
-          {isActive && (
+      {/* Header row */}
+      <div className="flex items-center justify-between" style={{ marginBottom: 2 }}>
+        <span className="label" style={{ color: 'var(--t4)', fontSize: 8 }}>TIME</span>
+        {isActive && (
+          <div className="flex items-center gap-2">
             <span className="mono text-[9px] text-[var(--t2)]">
-              {fmtDay(rng[0])} {fmtHour(rng[0])} — {fmtDay(rng[1])} {fmtHour(rng[1])}
+              {fmtLabel(rng[0])} — {fmtLabel(rng[1])}
             </span>
-          )}
-          {isActive && (
             <button
               onClick={() => onTimeRange(null)}
-              className="mono text-[8px] text-[var(--danger)] cursor-pointer"
-              style={{ background: 'var(--danger-dim)', border: '1px solid var(--danger)', borderRadius: 2, padding: '1px 5px' }}
-            >
-              CLEAR
-            </button>
-          )}
-        </div>
+              className="mono text-[8px] cursor-pointer"
+              style={{ color: 'var(--danger)', background: 'var(--danger-dim)', border: '1px solid var(--danger)', borderRadius: 2, padding: '0px 4px' }}
+            >×</button>
+          </div>
+        )}
       </div>
 
       {/* Track */}
       <div
         ref={trackRef}
         className="relative cursor-crosshair"
-        style={{ height: 36 }}
+        style={{ height: 28 }}
         onClick={handleTrackClick}
       >
-        {/* Histogram bars */}
-        {histogram.map((h, i) => (
-          <div
-            key={i}
-            className="absolute bottom-0"
-            style={{
-              left: `${(i / BUCKETS) * 100}%`,
-              width: `${100 / BUCKETS}%`,
-              height: `${Math.max(1, h * 28)}px`,
-              background: isActive
-                ? ((i / BUCKETS) * 100 >= leftPct && (i / BUCKETS) * 100 <= rightPct
-                  ? 'var(--blue-dim)' : 'rgba(95,107,124,0.15)')
-                : 'rgba(95,107,124,0.2)',
-              transition: 'background 0.1s',
-            }}
-          />
-        ))}
+        {/* Histogram */}
+        {histogram.map((h, i) => {
+          const barPctL = (i / BUCKETS) * 100;
+          const barPctR = ((i + 1) / BUCKETS) * 100;
+          const inRange = !isActive || (barPctL >= leftPct - 1 && barPctR <= rightPct + 1);
+          return (
+            <div
+              key={i}
+              className="absolute bottom-0"
+              style={{
+                left: `${barPctL}%`,
+                width: `${100 / BUCKETS}%`,
+                height: `${Math.max(1, h * 22)}px`,
+                background: inRange ? 'var(--blue)' : 'rgba(95,107,124,0.2)',
+                opacity: inRange ? 0.5 : 0.3,
+              }}
+            />
+          );
+        })}
 
-        {/* Day boundary lines */}
-        {dayTicks.map(tick => (
-          <div key={tick.label} className="absolute top-0 bottom-0" style={{ left: `${tick.pct}%` }}>
+        {/* Day lines */}
+        {dayTicks.map(t => (
+          <div key={t.label} className="absolute top-0 bottom-0" style={{ left: `${t.pct}%` }}>
             <div style={{ width: 1, height: '100%', background: 'var(--bd)' }} />
-            <span className="mono absolute text-[7px] text-[var(--t4)]" style={{ top: -1, left: 2 }}>
-              {tick.label}
-            </span>
+            <span className="mono absolute text-[7px] text-[var(--t4)]" style={{ top: 0, left: 3 }}>{t.label}</span>
           </div>
         ))}
 
-        {/* Selection range overlay */}
+        {/* Selection overlay */}
         {isActive && (
           <>
-            {/* Dimmed outside regions */}
-            <div className="absolute top-0 bottom-0" style={{ left: 0, width: `${leftPct}%`, background: 'rgba(0,0,0,0.4)' }} />
-            <div className="absolute top-0 bottom-0" style={{ left: `${rightPct}%`, right: 0, background: 'rgba(0,0,0,0.4)' }} />
+            <div className="absolute top-0 bottom-0" style={{ left: 0, width: `${leftPct}%`, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
+            <div className="absolute top-0 bottom-0" style={{ left: `${rightPct}%`, right: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
 
-            {/* Selected region border */}
             <div
               className="absolute top-0 bottom-0 cursor-grab"
-              style={{
-                left: `${leftPct}%`, width: `${rightPct - leftPct}%`,
-                borderTop: '2px solid var(--blue)', borderBottom: '2px solid var(--blue)',
-              }}
+              style={{ left: `${leftPct}%`, width: `${rightPct - leftPct}%`, borderTop: '2px solid var(--blue)', borderBottom: '2px solid var(--blue)' }}
               onMouseDown={e => handleMouseDown(e, 'range')}
             />
-
-            {/* Left handle */}
             <div
               className="absolute top-0 bottom-0 cursor-ew-resize"
-              style={{ left: `${leftPct}%`, width: 4, marginLeft: -2, background: 'var(--blue)', borderRadius: 1 }}
+              style={{ left: `${leftPct}%`, width: 6, marginLeft: -3, background: 'var(--blue)', borderRadius: 1, opacity: 0.8 }}
               onMouseDown={e => handleMouseDown(e, 'left')}
             />
-
-            {/* Right handle */}
             <div
               className="absolute top-0 bottom-0 cursor-ew-resize"
-              style={{ left: `${rightPct}%`, width: 4, marginLeft: -2, background: 'var(--blue)', borderRadius: 1 }}
+              style={{ left: `${rightPct}%`, width: 6, marginLeft: -3, background: 'var(--blue)', borderRadius: 1, opacity: 0.8 }}
               onMouseDown={e => handleMouseDown(e, 'right')}
             />
           </>

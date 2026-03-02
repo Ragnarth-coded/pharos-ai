@@ -3,10 +3,13 @@
 import { useState } from 'react';
 
 import StoryCard from './StoryCard';
-import StoryIcon from './StoryIcon';
 import StoryTimeline from './StoryTimeline';
 
 import { MAP_STORIES } from '@/data/mapStories';
+
+const SORTED_STORIES = [...MAP_STORIES].sort(
+  (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+);
 
 import type { MapStory } from '@/data/mapStories';
 
@@ -77,14 +80,14 @@ export default function MapSidebar({ isOpen, activeStory, onToggle, onActivateSt
         <>
           {/* Timeline strip */}
           <StoryTimeline
-            stories={MAP_STORIES}
+            stories={SORTED_STORIES}
             activeId={activeStory?.id ?? null}
             onActivate={(story) => { setOpenStoryId(story.id); onActivateStory(story); }}
           />
 
           {/* Stories list */}
           <div className="panel-body">
-            {MAP_STORIES.map(story => (
+            {SORTED_STORIES.map(story => (
               <StoryCard
                 key={story.id}
                 story={story}
@@ -96,29 +99,6 @@ export default function MapSidebar({ isOpen, activeStory, onToggle, onActivateSt
           </div>
         </>
       )}
-
-      {/* Collapsed icon rail */}
-      {!isOpen && MAP_STORIES.map(story => (
-        <div
-          key={story.id}
-          title={story.title}
-          onClick={() => { onToggle(); setOpenStoryId(story.id); onActivateStory(story); }}
-          className="flex items-center justify-center"
-          style={{
-            height:       28,
-            cursor:       'pointer',
-            borderBottom: '1px solid var(--bd-s)',
-            background:   activeStory?.id === story.id ? 'var(--bg-1)' : 'transparent',
-          }}
-          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--bg-1)')}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background =
-              activeStory?.id === story.id ? 'var(--bg-1)' : 'transparent';
-          }}
-        >
-          <StoryIcon iconName={story.iconName} category={story.category} size={14} boxSize={32} />
-        </div>
-      ))}
     </div>
   );
 }
