@@ -16,6 +16,7 @@ import MapOverlays   from '@/components/map/MapOverlays';
 import MapDetailPanel from '@/components/map/MapDetailPanel';
 import MapLegend     from '@/components/map/MapLegend';
 import MapFilterPanel from '@/components/map/MapFilterPanel';
+import MapTimeline   from '@/components/map/MapTimeline';
 
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 import type { StyleSpecification } from 'maplibre-gl';
@@ -116,6 +117,9 @@ export default function FullMapPage() {
         </div>
 
         <MapDetailPanel item={selectedItem} onClose={() => setSelectedItem(null)} onSelectItem={setSelectedItem} onActivateStory={handleActivateStory} />
+
+        {/* Timeline scrubber — bottom */}
+        <MapTimeline timeExtent={f.timeExtent} timeRange={f.state.timeRange} onTimeRange={f.setTimeRange} />
       </div>
     </div>
   );
