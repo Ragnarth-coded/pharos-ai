@@ -89,6 +89,57 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [spineY, setSpineY] = useState(350);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragState = useRef({ active: false, startX: 0, scrollLeft: 0 });
+
+  // Mouse-grab scrolling
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onDown = (e: MouseEvent) => {
+      // Ignore if clicking a link
+      if ((e.target as HTMLElement).closest('a')) return;
+      dragState.current = { active: true, startX: e.clientX, scrollLeft: el.scrollLeft };
+      setIsDragging(true);
+      el.style.cursor = 'grabbing';
+      e.preventDefault();
+    };
+
+    const onMove = (e: MouseEvent) => {
+      if (!dragState.current.active) return;
+      const dx = e.clientX - dragState.current.startX;
+      el.scrollLeft = dragState.current.scrollLeft - dx;
+    };
+
+    const onClick = (e: MouseEvent) => {
+      // If we dragged more than 5px, suppress the click (don't open links)
+      if (Math.abs(e.clientX - dragState.current.startX) > 5) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    const onUp = () => {
+      if (!dragState.current.active) return;
+      dragState.current.active = false;
+      setIsDragging(false);
+      el.style.cursor = 'grab';
+    };
+
+    el.style.cursor = 'grab';
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('click', onClick, true);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+
+    return () => {
+      el.removeEventListener('mousedown', onDown);
+      el.removeEventListener('click', onClick, true);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, []);
 
   // Center spine vertically in available space
   useEffect(() => {
@@ -252,7 +303,7 @@ export function NewsTimeline({ feedData }: NewsTimelineProps) {
       {/* Scrollable timeline area — custom visible scrollbar */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-x-auto overflow-y-auto min-h-0 timeline-scroll"
+        className={`flex-1 overflow-x-auto overflow-y-auto min-h-0 timeline-scroll ${isDragging ? 'select-none' : ''}`}
       >
         <div
           className="relative"
