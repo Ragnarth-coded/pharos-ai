@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { TimePoint } from '@/types/domain';
 
-/** @deprecated Use TimePoint from @/types/domain */
-export type PricePoint = TimePoint;
-
 export async function GET(req: NextRequest) {
   const conditionId = req.nextUrl.searchParams.get('id');
   if (!conditionId) {

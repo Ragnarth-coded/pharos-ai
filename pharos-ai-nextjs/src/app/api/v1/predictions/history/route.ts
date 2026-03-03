@@ -5,12 +5,9 @@ const CLOB = 'https://clob.polymarket.com';
 
 interface CacheEntry { data: unknown; ts: number; }
 const cache = new Map<string, CacheEntry>();
-const FRESH_TTL  = 3  * 60 * 1000;
-const STALE_TTL  = 15 * 60 * 1000;
+const FRESH_TTL = 3 * 60 * 1000;
+const STALE_TTL = 15 * 60 * 1000;
 const refetching = new Set<string>();
-
-/** @deprecated Use TimePoint from @/types/domain */
-export type ProbPoint = TimePoint;
 
 const INTERVALS = {
   '1d':  { interval: '1d',  fidelity: 10  },
@@ -23,9 +20,7 @@ const INTERVALS = {
 async function fetchHistory(tokenId: string, range: string): Promise<TimePoint[]> {
   const cfg = INTERVALS[range as keyof typeof INTERVALS] ?? INTERVALS['7d'];
   const url = `${CLOB}/prices-history?market=${encodeURIComponent(tokenId)}&interval=${cfg.interval}&fidelity=${cfg.fidelity}`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0' },
-  });
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   return (json.history ?? []) as TimePoint[];
@@ -53,10 +48,9 @@ async function getCached(tokenId: string, range: string): Promise<TimePoint[]> {
   return data;
 }
 
-// GET /api/polymarket/history?tokenId=...&range=7d
 export async function GET(req: NextRequest) {
   const tokenId = req.nextUrl.searchParams.get('tokenId');
-  const range   = req.nextUrl.searchParams.get('range') ?? '7d';
+  const range = req.nextUrl.searchParams.get('range') ?? '7d';
 
   if (!tokenId) {
     return NextResponse.json({ error: 'Missing tokenId' }, { status: 400 });

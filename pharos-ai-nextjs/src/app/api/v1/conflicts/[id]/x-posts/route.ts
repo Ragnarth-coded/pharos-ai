@@ -1,0 +1,56 @@
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/db';
+import { ok, err, parseDayRange } from '@/lib/api-utils';
+import type { Prisma } from '@/generated/prisma/client';
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const sp = req.nextUrl.searchParams;
+  const day = sp.get('day');
+  const significance = sp.get('significance');
+  const accountType = sp.get('accountType');
+  const pharosOnly = sp.get('pharosOnly');
+
+  const where: Prisma.XPostWhereInput = { conflictId: id };
+
+  if (day) {
+    const range = parseDayRange(day);
+    where.timestamp = { gte: range.gte, lt: range.lt };
+  }
+  if (significance) where.significance = significance as Prisma.EnumSignificanceLevelFilter['equals'];
+  if (accountType) where.accountType = accountType as Prisma.EnumAccountTypeFilter['equals'];
+  if (pharosOnly === 'true') where.pharosNote = { not: null };
+
+  const posts = await prisma.xPost.findMany({
+    where,
+    orderBy: { timestamp: 'desc' },
+  });
+
+  if (posts.length === 0 && !(await prisma.conflict.findUnique({ where: { id } }))) {
+    return err('NOT_FOUND', `Conflict ${id} not found`, 404);
+  }
+
+  const data = posts.map(p => ({
+    id: p.id,
+    handle: p.handle,
+    displayName: p.displayName,
+    avatar: p.avatar,
+    avatarColor: p.avatarColor,
+    verified: p.verified,
+    accountType: p.accountType,
+    significance: p.significance,
+    timestamp: p.timestamp.toISOString(),
+    content: p.content,
+    images: p.images,
+    videoThumb: p.videoThumb,
+    likes: p.likes,
+    retweets: p.retweets,
+    replies: p.replies,
+    views: p.views,
+    eventId: p.eventId,
+    actorId: p.actorId,
+    pharosNote: p.pharosNote,
+  }));
+
+  return ok(data);
+}

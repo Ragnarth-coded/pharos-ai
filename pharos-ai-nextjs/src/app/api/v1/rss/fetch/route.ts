@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Parser from 'rss-parser';
+import { prisma } from '@/lib/db';
 import type { FeedItem, FeedResult } from '@/types/domain';
 
 const parser = new Parser({
@@ -17,38 +18,24 @@ const parser = new Parser({
   },
 });
 
-// ─── Aggressive cache with stale-while-revalidate ─────────────
-// Each feed is cached for 10 minutes (fresh). After that it's stale
-// but still served immediately while a background refetch happens.
-// Max stale age: 60 minutes (after that, force-refetch).
+const FRESH_TTL = 10 * 60 * 1000;
+const STALE_TTL = 60 * 60 * 1000;
+const ERROR_TTL = 2 * 60 * 1000;
+const refetchingSet = new Set<string>();
 
-const FRESH_TTL = 10 * 60 * 1000;    // 10 min — serve without any fetch
-const STALE_TTL = 60 * 60 * 1000;    // 60 min — serve stale + background refetch
-const ERROR_TTL = 2 * 60 * 1000;     // 2 min  — cache errors briefly to avoid hammering
-const refetchingSet = new Set<string>(); // track in-flight background refetches
-
-interface CacheEntry {
-  data: FeedResult;
-  ts: number;
-}
-
+interface CacheEntry { data: FeedResult; ts: number; }
 const cache = new Map<string, CacheEntry>();
 
-/** Normalize any date string to a UTC ISO 8601 string.
- *  Handles RFC 2822 (RSS), ISO 8601 (Atom), and dates missing timezone info.
- *  Returns undefined only if the input is completely unparseable. */
 function normalizeDate(raw: string | undefined): string | undefined {
   if (!raw) return undefined;
   const d = new Date(raw);
   if (!isNaN(d.getTime())) return d.toISOString();
-  // Some feeds use non-standard separators or missing 'T'
   const cleaned = raw.replace(/\s+/g, ' ').trim();
   const retry = new Date(cleaned);
   if (!isNaN(retry.getTime())) return retry.toISOString();
   return undefined;
 }
 
-/** Extract image URL from various RSS feed formats */
 function extractImage(item: Record<string, unknown>): string | undefined {
   const mc = item.mediaContent as Record<string, unknown> | undefined;
   if (mc) {
@@ -74,7 +61,6 @@ function extractImage(item: Record<string, unknown>): string | undefined {
   return undefined;
 }
 
-/** Fetch a single feed and return parsed result */
 async function fetchFeed(id: string, url: string): Promise<FeedResult> {
   try {
     const feed = await parser.parseURL(url);
@@ -82,17 +68,16 @@ async function fetchFeed(id: string, url: string): Promise<FeedResult> {
       feedId: id,
       feedTitle: feed.title ?? id,
       items: (feed.items ?? []).slice(0, 25).map(item => {
-        // Always produce a valid UTC ISO string — normalize from isoDate or pubDate
         const iso = normalizeDate(item.isoDate) ?? normalizeDate(item.pubDate);
         return {
           title: item.title ?? '(untitled)',
           link: item.link ?? '',
           pubDate: item.pubDate ?? item.isoDate ?? '',
           contentSnippet: (item.contentSnippet ?? '').slice(0, 300),
-          creator: item.creator ?? (item as any)['dc:creator'] ?? undefined,
+          creator: item.creator ?? (item as never as Record<string, unknown>)['dc:creator'] as string ?? undefined,
           categories: item.categories ?? [],
           isoDate: iso,
-          imageUrl: extractImage(item as unknown as Record<string, unknown>),
+          imageUrl: extractImage(item as never),
         };
       }),
       cachedAt: Date.now(),
@@ -104,75 +89,56 @@ async function fetchFeed(id: string, url: string): Promise<FeedResult> {
   }
 }
 
-/** Background refetch — updates cache without blocking response */
 function backgroundRefetch(id: string, url: string) {
   const key = `${id}:${url}`;
-  if (refetchingSet.has(key)) return; // already in-flight
+  if (refetchingSet.has(key)) return;
   refetchingSet.add(key);
   fetchFeed(id, url)
     .then(result => {
       if (!result.error) {
         cache.set(url, { data: result, ts: Date.now() });
       } else {
-        // On error: keep existing cached items but refresh the timestamp so
-        // stale data stays alive instead of expiring into empty results.
         const existing = cache.get(url);
-        if (existing) {
-          cache.set(url, { data: existing.data, ts: Date.now() - FRESH_TTL });
-        }
+        if (existing) cache.set(url, { data: existing.data, ts: Date.now() - FRESH_TTL });
       }
     })
     .finally(() => refetchingSet.delete(key));
 }
 
-/** Get feed with stale-while-revalidate strategy */
 async function getFeedCached(id: string, url: string): Promise<FeedResult> {
   const cached = cache.get(url);
   const now = Date.now();
 
   if (cached) {
     const age = now - cached.ts;
-
-    // Fresh — serve as-is
-    if (age < FRESH_TTL) {
-      return { ...cached.data, fresh: true, cachedAt: cached.ts };
-    }
-
-    // Stale but within window — serve stale, trigger background refetch
+    if (age < FRESH_TTL) return { ...cached.data, fresh: true, cachedAt: cached.ts };
     if (age < STALE_TTL) {
       backgroundRefetch(id, url);
       return { ...cached.data, fresh: false, cachedAt: cached.ts };
     }
   }
 
-  // No cache or too old — blocking fetch
   const result = await fetchFeed(id, url);
   if (!result.error) {
     cache.set(url, { data: result, ts: now });
   } else if (cached) {
-    // Fetch failed but we have old data — keep serving it rather than empty results.
     cache.set(url, { data: cached.data, ts: now - FRESH_TTL });
     return { ...cached.data, fresh: false, cachedAt: now - FRESH_TTL };
   } else {
-    // No cached data at all — cache the error briefly to avoid hammering
     cache.set(url, { data: result, ts: now - STALE_TTL + ERROR_TTL });
   }
   return result;
 }
 
-// ─── Bulk prefetch endpoint ───────────────────────────────────
-// POST /api/rss with { ids: string[] } to prefetch all feeds at once
-// Returns immediately with cache status for each feed.
-
+// POST /api/v1/rss/fetch — bulk prefetch
 export async function POST(req: NextRequest) {
-  const { RSS_FEEDS } = await import('@/data/rssFeeds');
+  const allFeeds = await prisma.rssFeed.findMany();
   const body = await req.json().catch(() => ({}));
-  const ids: string[] = body.ids ?? RSS_FEEDS.map((f: { id: string }) => f.id);
+  const ids: string[] = body.ids ?? allFeeds.map(f => f.id);
 
-  // Fire off all fetches in parallel
   const results = await Promise.allSettled(
     ids.map(id => {
-      const feed = RSS_FEEDS.find((f: { id: string }) => f.id === id);
+      const feed = allFeeds.find(f => f.id === id);
       if (!feed) return Promise.resolve({ feedId: id, feedTitle: id, items: [], error: 'unknown feed' } as FeedResult);
       return getFeedCached(feed.id, feed.url);
     })
@@ -181,26 +147,24 @@ export async function POST(req: NextRequest) {
   const feeds = results.map(r => r.status === 'fulfilled' ? r.value : { feedId: '?', items: [], error: 'fetch failed' });
 
   return NextResponse.json(
-    { feeds, cachedFeeds: cache.size, totalFeeds: RSS_FEEDS.length },
+    { feeds, cachedFeeds: cache.size, totalFeeds: allFeeds.length },
     { headers: { 'Cache-Control': 'public, max-age=60, stale-while-revalidate=300' } },
   );
 }
 
-// ─── Single/multi feed GET endpoint ───────────────────────────
-
+// GET /api/v1/rss/fetch?ids=id1,id2
 export async function GET(req: NextRequest) {
   const feedIds = req.nextUrl.searchParams.get('ids');
-
   if (!feedIds) {
     return NextResponse.json({ error: 'Provide ?ids=id1,id2' }, { status: 400 });
   }
 
-  const { RSS_FEEDS } = await import('@/data/rssFeeds');
+  const allFeeds = await prisma.rssFeed.findMany();
   const ids = feedIds.split(',').map(s => s.trim());
 
   const urlsToFetch: { id: string; url: string }[] = [];
   for (const id of ids) {
-    const feed = RSS_FEEDS.find((f: { id: string }) => f.id === id);
+    const feed = allFeeds.find(f => f.id === id);
     if (feed) urlsToFetch.push({ id: feed.id, url: feed.url });
   }
 
