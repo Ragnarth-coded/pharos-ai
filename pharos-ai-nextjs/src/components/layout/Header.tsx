@@ -13,7 +13,6 @@ const NAV = [
   { label: 'BRIEF',       href: '/dashboard/brief'        },
   { label: 'MAP',         href: '/dashboard/map'          },
   { label: 'DATA',        href: '/dashboard/data'          },
-  { label: 'PREDICTIONS', href: '/dashboard/predictions'  },
 ];
 
 export function Header() {
