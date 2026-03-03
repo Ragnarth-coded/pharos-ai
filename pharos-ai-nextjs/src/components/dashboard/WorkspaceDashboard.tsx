@@ -19,53 +19,25 @@ import { getConflictForDay, getActorForDay, getEventsForDay, getPostsForDay } fr
 import type { ConflictDay } from '@/types/domain';
 import { CONFLICT_DAYS } from '@/types/domain';
 
+import { useAppSelector, useAppDispatch } from '@/store';
+import {
+  applyPreset,
+  addWidget as addWidgetAction,
+  removeWidget as removeWidgetAction,
+  moveWidget as moveWidgetAction,
+  addColumn as addColumnAction,
+  toggleEditing,
+  resetToPreset,
+  setColumnSizes,
+  setRowSizes,
+} from '@/store/workspace-slice';
+import { ALL_WIDGET_KEYS, WIDGET_LABELS, PRESETS, type WidgetKey, type PresetId } from '@/store/presets';
+
 const DashDayCtx = createContext<ConflictDay>(CONFLICT_DAYS[CONFLICT_DAYS.length - 1]);
 
 const FullMapPage = dynamic(() => import('@/components/map/MapPageContent'),                           { ssr: false });
 
-// ─── types ───────────────────────────────────────────────────────────────────
-
-type WidgetKey = 'situation' | 'latest' | 'actors' | 'signals' | 'map' | 'keyfacts' | 'casualties' | 'commanders' | 'predictions' | 'brief';
-
-type Column = {
-  id: string;
-  widgets: WidgetKey[];
-};
-
-type WorkspaceState = {
-  columns: Column[];
-};
-
-// ─── defaults ────────────────────────────────────────────────────────────────
-
-const DEFAULT_STATE: WorkspaceState = {
-  columns: [
-    { id: 'col-a', widgets: ['situation', 'latest'] },
-    { id: 'col-b', widgets: ['actors', 'signals'] },
-  ],
-};
-
-const ALL_WIDGET_KEYS: WidgetKey[] = [
-  'situation', 'latest', 'actors', 'signals', 'map',
-  'keyfacts', 'casualties', 'commanders', 'predictions', 'brief',
-];
-
-const STORAGE_KEY = 'pharos:workspace:v3';
-
-// ─── widget meta ─────────────────────────────────────────────────────────────
-
-const WIDGET_LABELS: Record<WidgetKey, string> = {
-  situation:   'Situation Summary',
-  latest:      'Latest Events',
-  actors:      'Actor Positions',
-  signals:     'Field Signals',
-  map:         'Intel Map',
-  keyfacts:    'Key Facts',
-  casualties:  'Casualties',
-  commanders:  'Commanders',
-  predictions: 'Prediction Markets',
-  brief:       'Daily Brief',
-};
+// types, constants, and presets imported from @/store/presets
 
 import { SEV_C } from '@/lib/severity-colors';
 const SEV_CLS: Record<string, string> = {
@@ -490,100 +462,24 @@ function widgetComponents(): Record<WidgetKey, () => React.ReactNode> {
   };
 }
 
-// ─── storage ─────────────────────────────────────────────────────────────────
-
-function load(): WorkspaceState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as WorkspaceState;
-  } catch { /**/ }
-  return DEFAULT_STATE;
-}
-
-function save(s: WorkspaceState) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch { /**/ }
-}
-
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
-function newColId() { return `col-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`; }
-
-function allWidgets(state: WorkspaceState): WidgetKey[] {
-  return state.columns.flatMap(c => c.widgets);
-}
 
 // ─── main ─────────────────────────────────────────────────────────────────────
 
 export function WorkspaceDashboard() {
-  const [editing, setEditing] = useState(false);
-  const [state, setState] = useState<WorkspaceState>(DEFAULT_STATE);
+  const dispatch = useAppDispatch();
+  const { columns, activePreset, editing, columnSizes, rowSizes } = useAppSelector(s => s.workspace);
   const [mounted, setMounted] = useState(false);
   const [dashDay, setDashDay] = useState<ConflictDay>(CONFLICT_DAYS[CONFLICT_DAYS.length - 1]);
 
-
-  useEffect(() => {
-    setState(load());
-    setMounted(true);
-  }, []);
-
-  function update(next: WorkspaceState) {
-    setState(next);
-    save(next);
-  }
+  useEffect(() => { setMounted(true); }, []);
 
   // All widgets not yet placed anywhere
-  const usedWidgets = allWidgets(state);
+  const usedWidgets = columns.flatMap(c => c.widgets);
   const availableWidgets = ALL_WIDGET_KEYS.filter(k => !usedWidgets.includes(k));
-
-  // ── mutations ──
-
-  function removeWidget(colId: string, widget: WidgetKey) {
-    const next: WorkspaceState = {
-      columns: state.columns
-        .map(col => col.id !== colId ? col : { ...col, widgets: col.widgets.filter(w => w !== widget) })
-        .filter(col => col.widgets.length > 0), // remove empty columns
-    };
-    update(next);
-  }
-
-  function addWidgetToColumn(colId: string, widget: WidgetKey) {
-    const next: WorkspaceState = {
-      columns: state.columns.map(col =>
-        col.id !== colId ? col : { ...col, widgets: [...col.widgets, widget] },
-      ),
-    };
-    update(next);
-  }
-
-  function addNewColumn(widget: WidgetKey) {
-    const next: WorkspaceState = {
-      columns: [...state.columns, { id: newColId(), widgets: [widget] }],
-    };
-    update(next);
-  }
-
-  function moveWidget(colId: string, widget: WidgetKey, direction: 'left' | 'right') {
-    const ci = state.columns.findIndex(c => c.id === colId);
-    const targetIndex = direction === 'left' ? ci - 1 : ci + 1;
-    if (targetIndex < 0 || targetIndex >= state.columns.length) return;
-
-    const next: WorkspaceState = {
-      columns: state.columns.map((col, i) => {
-        if (i === ci) return { ...col, widgets: col.widgets.filter(w => w !== widget) };
-        if (i === targetIndex) return { ...col, widgets: [...col.widgets, widget] };
-        return col;
-      }).filter(col => col.widgets.length > 0),
-    };
-    update(next);
-  }
-
-  function reset() {
-    update(DEFAULT_STATE);
-  }
 
   if (!mounted) return null;
 
-  const colSize = `${(100 / state.columns.length).toFixed(1)}%`;
+  const colSize = `${(100 / columns.length).toFixed(1)}%`;
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-[var(--bg-1)]">
@@ -591,7 +487,7 @@ export function WorkspaceDashboard() {
       {/* ── toolbar ── */}
       <div className="shrink-0 flex items-center gap-2 px-3 py-[5px] border-b border-[var(--bd)] bg-[var(--bg-2)]">
         <button
-          onClick={() => setEditing(v => !v)}
+          onClick={() => dispatch(toggleEditing())}
           className={`text-[10px] px-[10px] py-[4px] border font-semibold tracking-wide transition-colors ${
             editing
               ? 'border-[var(--blue)] bg-[var(--blue-dim)] text-[var(--blue-l)]'
@@ -600,6 +496,26 @@ export function WorkspaceDashboard() {
         >
           {editing ? '✦ EDITING' : 'EDIT LAYOUT'}
         </button>
+
+        {/* preset selector */}
+        <div className="flex items-center gap-0.5 ml-2">
+          {(['analyst', 'commander', 'executive'] as const).map(id => (
+            <button
+              key={id}
+              onClick={() => dispatch(applyPreset(id))}
+              className={`text-[10px] px-[10px] py-[4px] border font-semibold tracking-wide transition-colors mono ${
+                activePreset === id
+                  ? 'border-[var(--blue)] bg-[var(--blue-dim)] text-[var(--blue-l)]'
+                  : 'border-[var(--bd)] bg-[var(--bg-3)] text-[var(--t4)] hover:text-[var(--t2)]'
+              }`}
+            >
+              {PRESETS[id].label}
+            </button>
+          ))}
+          {activePreset === 'custom' && (
+            <span className="text-[9px] text-[var(--t4)] ml-1 mono">CUSTOM</span>
+          )}
+        </div>
 
         <div className="ml-1">
           <DaySelector currentDay={dashDay} onDayChange={setDashDay} />
@@ -622,7 +538,7 @@ export function WorkspaceDashboard() {
                   ))}
                 </select>
                 <span className="text-[9px] text-[var(--t4)]">→ col:</span>
-                {state.columns.map((col, ci) => (
+                {columns.map((col, ci) => (
                   <button
                     key={col.id}
                     className="text-[10px] px-[8px] py-[4px] border border-[var(--bd)] bg-[var(--bg-3)] text-[var(--t2)] flex items-center gap-1"
@@ -630,7 +546,7 @@ export function WorkspaceDashboard() {
                       const sel = document.getElementById('add-widget-select') as HTMLSelectElement;
                       const val = sel.value as WidgetKey;
                       if (!val || !availableWidgets.includes(val)) return;
-                      addWidgetToColumn(col.id, val);
+                      dispatch(addWidgetAction({ colId: col.id, widget: val }));
                       sel.value = '';
                     }}
                   >
@@ -643,7 +559,7 @@ export function WorkspaceDashboard() {
                     const sel = document.getElementById('add-widget-select') as HTMLSelectElement;
                     const val = sel.value as WidgetKey;
                     if (!val || !availableWidgets.includes(val)) return;
-                    addNewColumn(val);
+                    dispatch(addColumnAction(val));
                     sel.value = '';
                   }}
                 >
@@ -656,7 +572,7 @@ export function WorkspaceDashboard() {
             <span className="text-[9px] text-[var(--t4)] mono ml-2">drag splitters to resize</span>
 
             <button
-              onClick={reset}
+              onClick={() => dispatch(resetToPreset())}
               className="ml-auto text-[10px] px-[10px] py-[4px] border border-[var(--bd)] bg-[var(--bg-3)] text-[var(--t4)]"
             >
               Reset
@@ -671,13 +587,14 @@ export function WorkspaceDashboard() {
         orientation="horizontal"
         id="workspace-cols"
         className="flex-1 min-h-0"
+        onLayoutChanged={(layout) => { dispatch(setColumnSizes(layout)); }}
       >
-        {state.columns.map((col, ci) => (
+        {columns.map((col, ci) => (
           <React.Fragment key={col.id}>
             {ci > 0 && <ResizableHandle />}
             <ResizablePanel
               id={col.id}
-              defaultSize={colSize}
+              defaultSize={columnSizes[col.id] != null ? `${columnSizes[col.id]}%` : colSize}
               minSize="10%"
               className="flex flex-col min-h-0 min-w-0 overflow-hidden"
             >
@@ -685,13 +602,14 @@ export function WorkspaceDashboard() {
                 orientation="vertical"
                 id={`rows-${col.id}`}
                 className="flex-1 min-h-0"
+                onLayoutChanged={(layout) => { dispatch(setRowSizes({ colId: col.id, layout })); }}
               >
                 {col.widgets.map((widget, wi) => (
                   <React.Fragment key={`${col.id}-${widget}`}>
                     {wi > 0 && <ResizableHandle />}
                     <ResizablePanel
                       id={`${col.id}-${widget}`}
-                      defaultSize={`${(100 / col.widgets.length).toFixed(1)}%`}
+                      defaultSize={rowSizes[col.id]?.[`${col.id}-${widget}`] != null ? `${rowSizes[col.id][`${col.id}-${widget}`]}%` : `${(100 / col.widgets.length).toFixed(1)}%`}
                       minSize="15%"
                       className="flex flex-col min-h-0 overflow-hidden"
                     >
@@ -712,16 +630,16 @@ export function WorkspaceDashboard() {
                                 <button
                                   className="flex items-center justify-center w-5 h-5 text-[var(--t4)] hover:text-[var(--t1)] transition-colors"
                                   title="Move left"
-                                  onClick={() => moveWidget(col.id, widget, 'left')}
+                                  onClick={() => dispatch(moveWidgetAction({ colId: col.id, widget, direction: 'left' }))}
                                 >
                                   <ArrowLeft size={10} strokeWidth={2} />
                                 </button>
                               )}
-                              {ci < state.columns.length - 1 && (
+                              {ci < columns.length - 1 && (
                                 <button
                                   className="flex items-center justify-center w-5 h-5 text-[var(--t4)] hover:text-[var(--t1)] transition-colors"
                                   title="Move right"
-                                  onClick={() => moveWidget(col.id, widget, 'right')}
+                                  onClick={() => dispatch(moveWidgetAction({ colId: col.id, widget, direction: 'right' }))}
                                 >
                                   <ArrowRight size={10} strokeWidth={2} />
                                 </button>
@@ -729,7 +647,7 @@ export function WorkspaceDashboard() {
                               <button
                                 className="flex items-center justify-center w-5 h-5 text-[var(--t4)] hover:text-[var(--danger)] transition-colors"
                                 title="Remove widget"
-                                onClick={() => removeWidget(col.id, widget)}
+                                onClick={() => dispatch(removeWidgetAction({ colId: col.id, widget }))}
                               >
                                 <XIcon size={10} strokeWidth={2} />
                               </button>
