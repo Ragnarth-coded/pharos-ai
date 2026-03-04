@@ -1,7 +1,7 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { fmtTime } from '@/lib/format';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,19 @@ export function EventLog({ events, selectedId, onSelect }: Props) {
   }, [allPosts]);
 
   const grouped = groupByDate(events);
+  const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+  const latestDate = sortedDates[0] ?? '';
+
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(() => new Set(latestDate ? [latestDate] : []));
+
+  const toggleDate = (date: string) => {
+    setExpandedDates(prev => {
+      const next = new Set(prev);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  };
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -59,12 +72,27 @@ export function EventLog({ events, selectedId, onSelect }: Props) {
             <span className="label">No results</span>
           </div>
         )}
-        {Object.entries(grouped).map(([date, dayEvents]) => (
+        {sortedDates.map(date => {
+          const dayEvents = grouped[date];
+          const isExpanded = expandedDates.has(date);
+          const critCount = dayEvents.filter(e => e.severity === 'CRITICAL').length;
+          const highCount = dayEvents.filter(e => e.severity === 'HIGH').length;
+          return (
           <div key={date}>
-            <div className="px-3 py-1 bg-[var(--bg-2)] border-b border-[var(--bd)]">
+            <button
+              onClick={() => toggleDate(date)}
+              className="w-full flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-2)] border-b border-[var(--bd)] cursor-pointer hover:bg-[var(--bg-3)] transition-colors"
+            >
+              {isExpanded
+                ? <ChevronDown size={10} strokeWidth={2} className="text-[var(--t4)] shrink-0" />
+                : <ChevronRight size={10} strokeWidth={2} className="text-[var(--t4)] shrink-0" />
+              }
               <span className="mono text-[9px] text-[var(--t3)]">{date}</span>
-            </div>
-            {dayEvents.map(evt => {
+              <span className="mono text-[8px] text-[var(--t4)]">{dayEvents.length} events</span>
+              {critCount > 0 && <span className="mono text-[8px] text-[var(--danger)]">{critCount} CRIT</span>}
+              {highCount > 0 && <span className="mono text-[8px] text-[var(--warning)]">{highCount} HIGH</span>}
+            </button>
+            {isExpanded && dayEvents.map(evt => {
               const isOn = selectedId === evt.id;
               const sc   = SEV_C[evt.severity] ?? 'var(--info)';
               const sbg  = SEV_BG[evt.severity] ?? 'var(--info-dim)';
@@ -110,7 +138,8 @@ export function EventLog({ events, selectedId, onSelect }: Props) {
               );
             })}
           </div>
-        ))}
+          );
+        })}
       </ScrollArea>
     </div>
   );
