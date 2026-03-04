@@ -77,27 +77,27 @@ export default function StoryCard({ story, isOpen, onToggle, onFlyTo }: Props) {
         onClick={onToggle}
         className="w-full text-left hover:bg-[var(--bg-1)] transition-colors rounded-none h-auto"
         style={{
-          padding:    '12px 16px',
+          padding:    '8px 12px',
           background: isOpen ? 'var(--bg-1)' : 'transparent',
           display:    'block',
         }}
       >
         <div className="flex items-center gap-0">
-          <StoryIcon iconName={story.iconName} category={story.category} size={15} boxSize={28} style={{ marginRight: 10 }} />
+          <StoryIcon iconName={story.iconName} category={story.category} size={12} boxSize={22} style={{ marginRight: 8, flexShrink: 0 }} />
           <div className="flex-1 min-w-0">
-            <p style={{ fontWeight: 600, fontSize: 12, color: 'var(--t1)', lineHeight: 1.3 }} className="line-clamp-2">
+            <p style={{ fontWeight: 600, fontSize: 11, color: 'var(--t1)', lineHeight: 1.3 }} className="line-clamp-1">
               {story.title}
             </p>
-            <p style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }} className="truncate">{story.tagline}</p>
+            <p style={{ fontSize: 9, color: 'var(--t3)', marginTop: 1 }} className="truncate">{story.tagline}</p>
           </div>
           <div className="flex items-center gap-1 ml-2 shrink-0">
             <span className="mono" style={{
               background: catColor.bg, color: catColor.text,
-              fontSize: 8, fontWeight: 700, padding: '2px 5px', borderRadius: 2,
+              fontSize: 7, fontWeight: 700, padding: '2px 4px', borderRadius: 2,
             }}>
               {story.category}
             </span>
-            <span style={{ color: 'var(--t4)', fontSize: 12 }}>{isOpen ? '∨' : '›'}</span>
+            <span style={{ color: 'var(--t4)', fontSize: 11 }}>{isOpen ? '∨' : '›'}</span>
           </div>
         </div>
       </Button>

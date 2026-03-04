@@ -30,6 +30,7 @@ import {
 import { ALL_WIDGET_KEYS, WIDGET_LABELS, PRESETS, type WidgetKey, type PresetId } from '@/store/presets';
 
 import { useBootstrap } from '@/api/bootstrap';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 import { useConflict, useConflictDays } from '@/api/conflicts';
 import { useEvents } from '@/api/events';
 import { useActors } from '@/api/actors';
@@ -79,7 +80,7 @@ function SituationWidget() {
         </span>
       </div>
       <p className="text-[13px] text-[var(--t1)] leading-relaxed mb-2.5">{snap.summary}</p>
-      <div className="flex gap-3 mt-2.5">
+      <div className="flex flex-col sm:flex-row gap-3 mt-2.5">
         <div className="flex-1 px-3 py-2 bg-[var(--bg-2)] border border-[var(--bd)] [border-left:3px_solid_var(--blue)]">
           <div className="label text-[8px] mb-1 text-[var(--blue)]">US OBJECTIVE</div>
           <p className="text-[11px] text-[var(--t2)] leading-snug">{conflict?.objectives?.us}</p>
@@ -120,8 +121,8 @@ function LatestEventsWidget() {
                 <span className="mono text-[9px] text-[var(--t4)]">{fmtTimeZ(evt.timestamp)}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-[var(--t1)] leading-snug mb-[3px]">{evt.title}</p>
-                <span className="mono text-[9px] text-[var(--t4)]">{evt.location}</span>
+                <p className="text-xs text-[var(--t1)] leading-snug mb-[3px] break-words">{evt.title}</p>
+                <span className="mono text-[9px] text-[var(--t4)] truncate block">{evt.location}</span>
               </div>
               <div className="shrink-0 flex items-center">
                 <div className="w-1 h-full min-h-[32px] mr-2 opacity-40" style={{ background: sc }} />
@@ -231,11 +232,11 @@ function CasualtiesWidget() {
   ];
   return (
     <div className="h-full overflow-y-auto px-[18px] py-[14px]">
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 min-[260px]:grid-cols-2 gap-3 mb-4">
         {rows.map(r => (
           <div key={r.label} className="px-3 py-3 bg-[var(--bg-2)] border border-[var(--bd)]" style={{ borderLeft: `3px solid ${r.color}` }}>
             <div className="label text-[8px] mb-1 text-[var(--t4)]">{r.label}</div>
-            <div className="mono text-[22px] font-bold leading-none mb-1" style={{ color: r.color }}>{r.val?.toLocaleString?.() ?? r.val}</div>
+            <div className="mono text-[18px] sm:text-[22px] font-bold leading-none mb-1 break-all" style={{ color: r.color }}>{r.val?.toLocaleString?.() ?? r.val}</div>
             <div className="mono text-[9px] text-[var(--t4)]">{r.sub}</div>
           </div>
         ))}
@@ -499,6 +500,7 @@ export function WorkspaceDashboard() {
   const dispatch = useAppDispatch();
   const { columns, activePreset, editing, columnSizes, rowSizes } = useAppSelector(s => s.workspace);
   const [mounted, setMounted] = useState(false);
+  const isMobile = useIsMobile();
 
   const { data: bootstrap } = useBootstrap();
   const allDays = bootstrap?.days ?? [];
@@ -637,8 +639,26 @@ export function WorkspaceDashboard() {
         )}
       </div>
 
-      {/* ── tiled layout ── */}
-      <DashCtx.Provider value={dashData}>
+      {/* ── mobile stacked layout ── */}
+      {isMobile && (
+        <DashCtx.Provider value={dashData}>
+          <div className="flex-1 overflow-y-auto">
+            {columns.flatMap(c => c.widgets).map(widget => (
+              <div key={widget} className="flex flex-col border-b border-[var(--bd)]" style={{ minHeight: 240, maxHeight: 420 }}>
+                <div className="panel-header shrink-0">
+                  <span className="section-title">{WIDGET_LABELS[widget]}</span>
+                </div>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  {widgetComponents()[widget]()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </DashCtx.Provider>
+      )}
+
+      {/* ── tiled layout (desktop) ── */}
+      {!isMobile && <DashCtx.Provider value={dashData}>
       <ResizablePanelGroup
         orientation="horizontal"
         id="workspace-cols"
@@ -764,7 +784,7 @@ export function WorkspaceDashboard() {
           </React.Fragment>
         ))}
       </ResizablePanelGroup>
-      </DashCtx.Provider>
+      </DashCtx.Provider>}
     </div>
   );
 }
