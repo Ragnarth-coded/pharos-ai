@@ -31,6 +31,7 @@ import { ALL_WIDGET_KEYS, WIDGET_LABELS, PRESETS, type WidgetKey } from '@/store
 
 import { useBootstrap } from '@/api/bootstrap';
 import { useIsMobile } from '@/hooks/use-is-mobile';
+import { MobileOverview } from '@/components/dashboard/MobileOverview';
 import { useConflict, useConflictDays } from '@/api/conflicts';
 import { useEvents } from '@/api/events';
 import { useActors } from '@/api/actors';
@@ -528,11 +529,15 @@ export function WorkspaceDashboard() {
     allDays,
   };
 
+  // Mobile: completely different overview — no widgets, no presets
+  if (isMobile) return <MobileOverview />;
+
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-[var(--bg-1)]">
+    <div className="flex flex-col flex-1 min-h-0 bg-[var(--bg-1)] overflow-hidden">
+
 
       {/* ── toolbar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 py-[5px] border-b border-[var(--bd)] bg-[var(--bg-2)] overflow-x-auto touch-scroll hide-scrollbar">
+      <div className="shrink-0 flex items-center gap-2 py-[5px] px-3 border-b border-[var(--bd)] bg-[var(--bg-2)] overflow-x-auto touch-scroll hide-scrollbar">
         <button
           onClick={() => dispatch(toggleEditing())}
           className={`text-[10px] px-[10px] py-[4px] border font-semibold tracking-wide transition-colors ${
@@ -628,36 +633,8 @@ export function WorkspaceDashboard() {
         )}
       </div>
 
-      {/* ── mobile stacked layout ── */}
-      {isMobile && (
-        <DashCtx.Provider value={dashData}>
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <Link href="/dashboard/map" className="no-underline">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--bd)] bg-[var(--bg-2)]">
-                <div className="flex items-center gap-2">
-                  <MapIcon size={14} strokeWidth={2} className="text-[var(--blue-l)]" />
-                  <span className="mono text-[10px] font-bold text-[var(--t1)] tracking-[0.08em]">OPEN FULL MAP</span>
-                </div>
-                <span className="mono text-[10px] text-[var(--blue-l)] font-bold">→</span>
-              </div>
-            </Link>
-
-            {columns.flatMap(c => c.widgets).filter(widget => widget !== 'map').map(widget => (
-              <div key={widget} className="flex flex-col border-b border-[var(--bd)]" style={{ minHeight: 240 }}>
-                <div className="panel-header shrink-0">
-                  <span className="section-title">{WIDGET_LABELS[widget]}</span>
-                </div>
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  {widgetComponents()[widget]()}
-                </div>
-              </div>
-            ))}
-          </div>
-        </DashCtx.Provider>
-      )}
-
-      {/* ── tiled layout (desktop) ── */}
-      {!isMobile && <DashCtx.Provider value={dashData}>
+      {/* ── tiled layout (desktop only — mobile returns early above) ── */}
+      <DashCtx.Provider value={dashData}>
       <ResizablePanelGroup
         orientation="horizontal"
         id="workspace-cols"
@@ -783,7 +760,7 @@ export function WorkspaceDashboard() {
           </React.Fragment>
         ))}
       </ResizablePanelGroup>
-      </DashCtx.Provider>}
+      </DashCtx.Provider>
     </div>
   );
 }
