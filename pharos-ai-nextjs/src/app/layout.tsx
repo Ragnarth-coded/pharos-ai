@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.conflicts.today'),
   applicationName: 'Conflicts.app',
   title: {
-    default: 'Conflicts.app',
+    default: 'Conflicts.app - Live Geopolitical Intelligence Dashboard',
     template: '%s | Conflicts.app',
   },
   description: 'Pharos is a live geopolitical intelligence dashboard for conflict tracking across events, actors, signals, briefs, and map-based analysis.',
@@ -20,22 +20,22 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://www.conflicts.today',
     siteName: 'Conflicts.app',
-    title: 'Conflicts.app',
+    title: 'Conflicts.app - Live Geopolitical Intelligence Dashboard',
     description: 'Pharos is a live geopolitical intelligence dashboard for conflict tracking across events, actors, signals, briefs, and map-based analysis.',
     images: [
       {
-        url: '/app_screenshot.png',
-        width: 1920,
-        height: 1080,
-        alt: 'Pharos conflict intelligence map and operations dashboard',
+        url: '/og-image-1200x630.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Conflicts.app live intelligence dashboard',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Conflicts.app',
+    title: 'Conflicts.app - Live Geopolitical Intelligence Dashboard',
     description: 'Pharos is a live geopolitical intelligence dashboard for conflict tracking across events, actors, signals, briefs, and map-based analysis.',
-    images: ['/app_screenshot.png'],
+    images: ['/og-image-1200x630.jpg'],
   },
   icons: {
     icon: '/icon.svg',
