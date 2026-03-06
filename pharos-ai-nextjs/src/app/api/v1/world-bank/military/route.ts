@@ -4,13 +4,18 @@ import { ok, err, parseQueryArray } from '@/lib/api-utils';
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface CacheEntry {
-  data: Record<string, CountryMilData>;
+  data: Record<string, CountryWorldBankData>;
   ts: number;
 }
 
-interface CountryMilData {
+interface CountryWorldBankData {
   spending: { year: number; value: number }[];
   gdpPct: { year: number; value: number }[];
+  armedForces: { year: number; value: number }[];
+  inflation: { year: number; value: number }[];
+  gdpGrowth: { year: number; value: number }[];
+  refugeePopulation: { year: number; value: number }[];
+  gini: { year: number; value: number }[];
 }
 
 interface WorldBankRow {
@@ -26,12 +31,35 @@ const TTL = 24 * 60 * 60 * 1000;
 // ─── World Bank indicator IDs ───────────────────────────────────────────────
 
 const INDICATORS = {
-  spending: 'MS.MIL.XPND.CD',   // Military expenditure (current USD)
+  spending: 'MS.MIL.XPND.CD',
   gdpPct: 'MS.MIL.XPND.GD.ZS', // Military expenditure (% of GDP)
+  armedForces: 'MS.MIL.TOTL.P1',
+  inflation: 'FP.CPI.TOTL.ZG',
+  gdpGrowth: 'NY.GDP.MKTP.KD.ZG',
+  refugeePopulation: 'SM.POP.REFG',
+  gini: 'SI.POV.GINI',
 } as const;
 
-const DATE_RANGE = '2015:2023';
+const END_YEAR = new Date().getUTCFullYear();
+const START_YEAR = END_YEAR - 14;
+const DATE_RANGE = `${START_YEAR}:${END_YEAR}`;
 const PER_PAGE = 200;
+const FETCH_TIMEOUT_MS = 5000;
+
+async function fetchWithTimeout(url: string): Promise<Response | null> {
+  try {
+    return await fetch(url, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Pharos/1.0 (+world-bank-profile)',
+      },
+      cache: 'no-store',
+    });
+  } catch {
+    return null;
+  }
+}
 
 // ─── Fetch one indicator for one country ────────────────────────────────────
 
@@ -43,8 +71,8 @@ async function fetchIndicator(
     `https://api.worldbank.org/v2/country/${iso3}/indicator/${indicator}` +
     `?date=${DATE_RANGE}&format=json&per_page=${PER_PAGE}`;
 
-  const res = await fetch(url);
-  if (!res.ok) return [];
+  const res = await fetchWithTimeout(url);
+  if (!res?.ok) return [];
 
   const json: unknown = await res.json();
   // World Bank returns [metadata, dataArray] — dataArray may be null
@@ -74,15 +102,32 @@ export async function GET(req: NextRequest) {
   }
 
   // Fetch all indicators for all countries in parallel
-  const results: Record<string, CountryMilData> = {};
+  const results: Record<string, CountryWorldBankData> = {};
 
   await Promise.all(
-    countries.map(async (iso3) => {
-      const [spending, gdpPct] = await Promise.all([
+    countries.map(async (rawIso3) => {
+      const iso3 = rawIso3.toUpperCase();
+      const settled = await Promise.allSettled([
         fetchIndicator(iso3, INDICATORS.spending),
         fetchIndicator(iso3, INDICATORS.gdpPct),
+        fetchIndicator(iso3, INDICATORS.armedForces),
+        fetchIndicator(iso3, INDICATORS.inflation),
+        fetchIndicator(iso3, INDICATORS.gdpGrowth),
+        fetchIndicator(iso3, INDICATORS.refugeePopulation),
+        fetchIndicator(iso3, INDICATORS.gini),
       ]);
-      results[iso3] = { spending, gdpPct };
+      const [spending, gdpPct, armedForces, inflation, gdpGrowth, refugeePopulation, gini] = settled.map((result) =>
+        result.status === 'fulfilled' ? result.value : [],
+      );
+      results[iso3] = {
+        spending,
+        gdpPct,
+        armedForces,
+        inflation,
+        gdpGrowth,
+        refugeePopulation,
+        gini,
+      };
     }),
   );
 

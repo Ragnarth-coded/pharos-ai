@@ -11,7 +11,9 @@ type Props = {
   pageScroll?: boolean;
 };
 
-// ─── Formatters ─────────────────────────────────────────────────────────────
+function latestPoint(points: MilSpendPoint[]): MilSpendPoint | null {
+  return points.length > 0 ? points[points.length - 1] : null;
+}
 
 function fmtUsd(val: number): string {
   if (val >= 1e12) return `$${(val / 1e12).toFixed(1)}T`;
@@ -24,6 +26,16 @@ function fmtPct(val: number): string {
   return `${val.toFixed(2)}%`;
 }
 
+function fmtPeople(val: number): string {
+  if (val >= 1e6) return `${(val / 1e6).toFixed(2)}M`;
+  if (val >= 1e3) return `${(val / 1e3).toFixed(0)}K`;
+  return Math.round(val).toLocaleString();
+}
+
+function fmtIndex(val: number): string {
+  return val.toFixed(1);
+}
+
 function yoyChange(pts: MilSpendPoint[]): { delta: number; pct: number } | null {
   if (pts.length < 2) return null;
   const curr = pts[pts.length - 1].value;
@@ -31,8 +43,6 @@ function yoyChange(pts: MilSpendPoint[]): { delta: number; pct: number } | null 
   if (prev === 0) return null;
   return { delta: curr - prev, pct: ((curr - prev) / prev) * 100 };
 }
-
-// ─── Sparkline (SVG polyline) ───────────────────────────────────────────────
 
 function Sparkline({ data, color }: { data: MilSpendPoint[]; color: string }) {
   if (data.length < 2) return null;
@@ -67,8 +77,6 @@ function Sparkline({ data, color }: { data: MilSpendPoint[]; color: string }) {
   );
 }
 
-// ─── YoY badge ──────────────────────────────────────────────────────────────
-
 function YoyBadge({ pts }: { pts: MilSpendPoint[] }) {
   const change = yoyChange(pts);
   if (!change) return null;
@@ -84,7 +92,25 @@ function YoyBadge({ pts }: { pts: MilSpendPoint[] }) {
   );
 }
 
-// ─── Skeleton placeholder ───────────────────────────────────────────────────
+function MetricCard({
+  label,
+  value,
+  sublabel,
+  tone = 'var(--t1)',
+}: {
+  label: string;
+  value: string;
+  sublabel: string;
+  tone?: string;
+}) {
+  return (
+    <div className="border border-[var(--bd)] bg-[var(--bg-2)] px-3 py-3">
+      <div className="label text-[8px] text-[var(--t4)] mb-1">{label}</div>
+      <div className="mono text-[18px] font-bold leading-none" style={{ color: tone }}>{value}</div>
+      <div className="mono text-[8px] text-[var(--t4)] mt-2">{sublabel}</div>
+    </div>
+  );
+}
 
 function Skeleton() {
   return (
@@ -100,9 +126,7 @@ function Skeleton() {
   );
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
-
-export function ActorMilitaryTab({ iso3, pageScroll = false }: Props) {
+export function ActorMilitaryTab({ actor, iso3, pageScroll = false }: Props) {
   const { data, isLoading, isError } = useMilitarySpending([iso3]);
 
   if (isLoading) {
@@ -113,113 +137,221 @@ export function ActorMilitaryTab({ iso3, pageScroll = false }: Props) {
     );
   }
 
-  const milData = data?.[iso3];
+  const profile = data?.[iso3];
 
-  if (isError || !milData || (milData.spending.length === 0 && milData.gdpPct.length === 0)) {
+  if (!profile || isError) {
     return (
       <ScrollArea className="h-full">
         <div className={pageScroll ? 'safe-px p-12 text-center' : 'p-12 text-center'}>
-          <p className="label text-[var(--t3)]">No military data available for this actor</p>
+          <p className="label text-[var(--t3)]">No World Bank profile available for this actor</p>
         </div>
       </ScrollArea>
     );
   }
 
-  const latestSpending = milData.spending.length > 0 ? milData.spending[milData.spending.length - 1] : null;
-  const latestGdp = milData.gdpPct.length > 0 ? milData.gdpPct[milData.gdpPct.length - 1] : null;
+  const latestSpending = latestPoint(profile.spending);
+  const latestGdp = latestPoint(profile.gdpPct);
+  const latestForces = latestPoint(profile.armedForces);
+  const latestInflation = latestPoint(profile.inflation);
+  const latestGrowth = latestPoint(profile.gdpGrowth);
+  const latestRefugees = latestPoint(profile.refugeePopulation);
+  const latestGini = latestPoint(profile.gini);
 
-  // Determine trend color from latest spending change
-  const spendChange = yoyChange(milData.spending);
+  const hasAnyData = [
+    latestSpending,
+    latestGdp,
+    latestForces,
+    latestInflation,
+    latestGrowth,
+    latestRefugees,
+    latestGini,
+  ].some(Boolean);
+
+  if (!hasAnyData) {
+    return (
+      <ScrollArea className="h-full">
+        <div className={pageScroll ? 'safe-px p-12 text-center' : 'p-12 text-center'}>
+          <p className="label text-[var(--t3)]">No World Bank profile available for this actor</p>
+        </div>
+      </ScrollArea>
+    );
+  }
+
+  const spendChange = yoyChange(profile.spending);
   const trendPositive = spendChange ? spendChange.delta >= 0 : true;
   const trendColor = trendPositive ? 'rgba(34,197,94,0.9)' : 'rgba(239,68,68,0.9)';
 
-  // Merge years for table (most recent first)
   const allYears = [...new Set([
-    ...milData.spending.map(d => d.year),
-    ...milData.gdpPct.map(d => d.year),
+    ...profile.spending.map(d => d.year),
+    ...profile.gdpPct.map(d => d.year),
+    ...profile.armedForces.map(d => d.year),
+    ...profile.inflation.map(d => d.year),
+    ...profile.gdpGrowth.map(d => d.year),
   ])].sort((a, b) => b - a);
 
-  const spendMap = Object.fromEntries(milData.spending.map(d => [d.year, d.value]));
-  const gdpMap = Object.fromEntries(milData.gdpPct.map(d => [d.year, d.value]));
+  const spendMap = Object.fromEntries(profile.spending.map(d => [d.year, d.value]));
+  const gdpMap = Object.fromEntries(profile.gdpPct.map(d => [d.year, d.value]));
+  const forcesMap = Object.fromEntries(profile.armedForces.map(d => [d.year, d.value]));
+  const inflationMap = Object.fromEntries(profile.inflation.map(d => [d.year, d.value]));
+  const growthMap = Object.fromEntries(profile.gdpGrowth.map(d => [d.year, d.value]));
 
   return (
     <ScrollArea className="h-full">
       <div className={pageScroll ? 'safe-px py-[18px]' : 'px-[22px] py-[18px]'}>
-        {/* MILITARY EXPENDITURE */}
-        {latestSpending && (
+        <div className="mb-5 border border-[var(--bd)] bg-[var(--bg-2)] px-3 py-3">
+          <div className="label text-[8px] text-[var(--t4)] mb-1">WORLD BANK COUNTRY PROFILE</div>
+          <div className="text-[13px] font-bold text-[var(--t1)]">{actor.fullName}</div>
+          <div className="mono text-[9px] text-[var(--t4)] mt-1">
+            Long-range state capacity and macro-stability indicators for actor-linked country data.
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-3 mb-5">
+          {latestSpending && (
+            <MetricCard
+              label="MILITARY EXPENDITURE"
+              value={fmtUsd(latestSpending.value)}
+              sublabel={`${latestSpending.year} · CURRENT USD`}
+              tone="var(--t1)"
+            />
+          )}
+          {latestGdp && (
+            <MetricCard
+              label="DEFENSE SHARE OF GDP"
+              value={fmtPct(latestGdp.value)}
+              sublabel={`${latestGdp.year} · PERCENT OF GDP`}
+              tone="var(--warning)"
+            />
+          )}
+          {latestForces && (
+            <MetricCard
+              label="ARMED FORCES PERSONNEL"
+              value={fmtPeople(latestForces.value)}
+              sublabel={`${latestForces.year} · TOTAL PERSONNEL`}
+              tone="var(--blue)"
+            />
+          )}
+          {latestGrowth && (
+            <MetricCard
+              label="GDP GROWTH"
+              value={fmtPct(latestGrowth.value)}
+              sublabel={`${latestGrowth.year} · ANNUAL GROWTH`}
+              tone={latestGrowth.value >= 0 ? 'var(--success)' : 'var(--danger)'}
+            />
+          )}
+          {latestInflation && (
+            <MetricCard
+              label="INFLATION"
+              value={fmtPct(latestInflation.value)}
+              sublabel={`${latestInflation.year} · CPI`}
+              tone={latestInflation.value >= 10 ? 'var(--danger)' : 'var(--warning)'}
+            />
+          )}
+          {latestGini && (
+            <MetricCard
+              label="GINI COEFFICIENT"
+              value={fmtIndex(latestGini.value)}
+              sublabel={`${latestGini.year} · INEQUALITY INDEX`}
+              tone="var(--t2)"
+            />
+          )}
+        </div>
+
+        {(latestRefugees || latestInflation || latestGrowth || latestGini) && (
           <div className="mb-5">
-            <SectionDivider label="MILITARY EXPENDITURE" />
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-[var(--t1)] mono">
-                {fmtUsd(latestSpending.value)}
-              </span>
-              <YoyBadge pts={milData.spending} />
+            <SectionDivider label="STABILITY SIGNALS" />
+            <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-3">
+              {latestRefugees && (
+                <MetricCard
+                  label="REFUGEE POPULATION HOSTED"
+                  value={fmtPeople(latestRefugees.value)}
+                  sublabel={`${latestRefugees.year} · COUNTRY OF ASYLUM`}
+                  tone="var(--info)"
+                />
+              )}
+              {latestInflation && (
+                <MetricCard
+                  label="PRICE PRESSURE"
+                  value={fmtPct(latestInflation.value)}
+                  sublabel={`${latestInflation.year} · HIGHER CAN SIGNAL INSTABILITY`}
+                  tone={latestInflation.value >= 10 ? 'var(--danger)' : 'var(--warning)'}
+                />
+              )}
+              {latestGrowth && (
+                <MetricCard
+                  label="ECONOMIC MOMENTUM"
+                  value={fmtPct(latestGrowth.value)}
+                  sublabel={`${latestGrowth.year} · REAL GDP GROWTH`}
+                  tone={latestGrowth.value >= 0 ? 'var(--success)' : 'var(--danger)'}
+                />
+              )}
+              {latestGini && (
+                <MetricCard
+                  label="SOCIAL STRAIN"
+                  value={fmtIndex(latestGini.value)}
+                  sublabel={`${latestGini.year} · GINI / INEQUALITY`}
+                  tone="var(--t2)"
+                />
+              )}
             </div>
-            <span className="label text-[8px] text-[var(--t3)]">
-              {latestSpending.year} · CURRENT USD · WORLD BANK
-            </span>
           </div>
         )}
 
-        {/* DEFENSE AS % OF GDP */}
-        {latestGdp && (
-          <div className="mb-5">
-            <SectionDivider label="DEFENSE AS % OF GDP" />
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-[var(--t1)] mono">
-                {fmtPct(latestGdp.value)}
-              </span>
-              <YoyBadge pts={milData.gdpPct} />
-            </div>
-            <span className="label text-[8px] text-[var(--t3)]">
-              {latestGdp.year} · SHARE OF GDP · WORLD BANK
-            </span>
-          </div>
-        )}
-
-        {/* SPENDING TREND */}
-        {milData.spending.length >= 2 && (
+        {profile.spending.length >= 2 && (
           <div className="mb-5">
             <SectionDivider label="SPENDING TREND" />
             <div className="border border-[var(--bd)] p-2">
-              <Sparkline data={milData.spending} color={trendColor} />
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-[11px] font-semibold text-[var(--t2)]">Military expenditure</span>
+                <YoyBadge pts={profile.spending} />
+              </div>
+              <Sparkline data={profile.spending} color={trendColor} />
               <div className="flex justify-between mt-1">
-                <span className="mono text-[8px] text-[var(--t4)]">
-                  {milData.spending[0].year}
-                </span>
-                <span className="mono text-[8px] text-[var(--t4)]">
-                  {milData.spending[milData.spending.length - 1].year}
-                </span>
+                <span className="mono text-[8px] text-[var(--t4)]">{profile.spending[0].year}</span>
+                <span className="mono text-[8px] text-[var(--t4)]">{profile.spending[profile.spending.length - 1].year}</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* YEARLY BREAKDOWN */}
         <div className="mb-5">
           <SectionDivider label="YEARLY BREAKDOWN" />
-          <table className="w-full text-[11px]">
-            <thead>
-              <tr className="border-b border-[var(--bd)]">
-                <th className="label text-[8px] text-left py-1.5 pr-4">YEAR</th>
-                <th className="label text-[8px] text-right py-1.5 pr-4">SPENDING</th>
-                <th className="label text-[8px] text-right py-1.5">% GDP</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allYears.map(year => (
-                <tr key={year} className="border-b border-[var(--bd-s)]">
-                  <td className="mono text-[var(--t2)] py-1.5 pr-4">{year}</td>
-                  <td className="mono text-[var(--t1)] text-right py-1.5 pr-4">
-                    {spendMap[year] != null ? fmtUsd(spendMap[year]) : '—'}
-                  </td>
-                  <td className="mono text-[var(--t1)] text-right py-1.5">
-                    {gdpMap[year] != null ? fmtPct(gdpMap[year]) : '—'}
-                  </td>
+          <div className="overflow-x-auto border border-[var(--bd)]">
+            <table className="w-full text-[11px] min-w-[720px]">
+              <thead>
+                <tr className="border-b border-[var(--bd)] bg-[var(--bg-2)]">
+                  <th className="label text-[8px] text-left py-1.5 px-3">YEAR</th>
+                  <th className="label text-[8px] text-right py-1.5 px-3">SPENDING</th>
+                  <th className="label text-[8px] text-right py-1.5 px-3">% GDP</th>
+                  <th className="label text-[8px] text-right py-1.5 px-3">PERSONNEL</th>
+                  <th className="label text-[8px] text-right py-1.5 px-3">INFLATION</th>
+                  <th className="label text-[8px] text-right py-1.5 px-3">GDP GROWTH</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {allYears.map(year => (
+                  <tr key={year} className="border-b border-[var(--bd-s)] last:border-b-0">
+                    <td className="mono text-[var(--t2)] py-1.5 px-3">{year}</td>
+                    <td className="mono text-[var(--t1)] text-right py-1.5 px-3">
+                      {spendMap[year] != null ? fmtUsd(spendMap[year]) : '—'}
+                    </td>
+                    <td className="mono text-[var(--t1)] text-right py-1.5 px-3">
+                      {gdpMap[year] != null ? fmtPct(gdpMap[year]) : '—'}
+                    </td>
+                    <td className="mono text-[var(--t1)] text-right py-1.5 px-3">
+                      {forcesMap[year] != null ? fmtPeople(forcesMap[year]) : '—'}
+                    </td>
+                    <td className="mono text-[var(--t1)] text-right py-1.5 px-3">
+                      {inflationMap[year] != null ? fmtPct(inflationMap[year]) : '—'}
+                    </td>
+                    <td className="mono text-[var(--t1)] text-right py-1.5 px-3">
+                      {growthMap[year] != null ? fmtPct(growthMap[year]) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </ScrollArea>

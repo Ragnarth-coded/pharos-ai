@@ -12,6 +12,11 @@ export interface MilSpendPoint {
 export interface MilitarySpendingData {
   spending: MilSpendPoint[]; // current USD, sorted by year asc
   gdpPct: MilSpendPoint[];  // percentage of GDP
+  armedForces: MilSpendPoint[];
+  inflation: MilSpendPoint[];
+  gdpGrowth: MilSpendPoint[];
+  refugeePopulation: MilSpendPoint[];
+  gini: MilSpendPoint[];
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────────
