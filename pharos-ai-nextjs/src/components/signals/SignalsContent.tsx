@@ -14,8 +14,8 @@ import { useXPosts } from '@/api/x-posts';
 import XPostCard from '@/components/shared/XPostCard';
 import { SignalFilterRail, type Significance, type AccountType } from '@/components/signals/SignalFilterRail';
 import { SectionHeader } from '@/components/signals/SectionHeader';
-import { getPostsForDay } from '@/lib/day-filter';
-import { timeAgo } from '@/lib/format';
+import { getPostsForDay } from '@/shared/lib/day-filter';
+import { timeAgo } from '@/shared/lib/format';
 import { ListDetailScreenSkeleton } from '@/components/loading/screen-skeletons';
 
 export function SignalsContent() {

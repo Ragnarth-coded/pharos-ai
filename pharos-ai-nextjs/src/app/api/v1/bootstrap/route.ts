@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
 
 export async function GET() {
   const conflictId = process.env.NEXT_PUBLIC_CONFLICT_ID ?? 'iran-2026';

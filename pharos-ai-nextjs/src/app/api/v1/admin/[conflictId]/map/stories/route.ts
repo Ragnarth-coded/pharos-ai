@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
-import { requireAdmin } from '@/lib/admin-auth';
-import { assertRequired, assertEnum, parseISODate, safeJson, STORY_ICON_NAMES } from '@/lib/admin-validate';
-import { checkStoryEnforcement } from '@/lib/enforcement';
-import { isEnforcementMode, enforcementResponse } from '@/lib/enforcement-utils';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
+import { requireAdmin } from '@/server/lib/admin-auth';
+import { assertRequired, assertEnum, parseISODate, safeJson, STORY_ICON_NAMES } from '@/server/lib/admin-validate';
+import { checkStoryEnforcement } from '@/server/lib/enforcement';
+import { isEnforcementMode, enforcementResponse } from '@/server/lib/enforcement-utils';
 import { StoryCategory } from '@/generated/prisma/client';
 
 const CATEGORIES = Object.values(StoryCategory);

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { ACT_C, STA_C } from '@/data/iran-actors';
 import Flag from '@/components/shared/Flag';
-import { getActorForDay } from '@/lib/day-filter';
+import { getActorForDay } from '@/shared/lib/day-filter';
 import { DashCtx } from '../DashCtx';
 
 export function ActorsWidget() {

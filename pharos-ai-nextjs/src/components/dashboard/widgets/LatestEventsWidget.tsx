@@ -4,9 +4,9 @@ import { useContext, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-import { fmtTimeZ } from '@/lib/format';
-import { SEV_C } from '@/lib/severity-colors';
-import { getEventsForDay } from '@/lib/day-filter';
+import { fmtTimeZ } from '@/shared/lib/format';
+import { SEV_C } from '@/shared/lib/severity-colors';
+import { getEventsForDay } from '@/shared/lib/day-filter';
 import { DashCtx } from '../DashCtx';
 
 const SEV_CLS: Record<string, string> = {

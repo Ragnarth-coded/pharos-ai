@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useMapData, useMapStories } from '@/api/map';
 
 import { CATEGORY_LABEL, STATUS_META } from '@/data/map-tokens';
-import { fmtDate, fmtTimeZ } from '@/lib/format';
+import { fmtDate, fmtTimeZ } from '@/shared/lib/format';
 import type { ActorMeta } from '@/data/map-tokens';
 import StoryIcon from './StoryIcon';
 

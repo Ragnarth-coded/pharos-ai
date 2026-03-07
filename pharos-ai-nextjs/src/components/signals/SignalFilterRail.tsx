@@ -2,7 +2,7 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FilterBlock, CheckboxRow, ToggleRow } from '@/components/shared/FilterControls';
 import { DaySelector } from '@/components/shared/DaySelector';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 import type { Significance, AccountType, ConflictDay, VerificationStatus } from '@/types/domain';
 export type { Significance, AccountType, VerificationStatus };

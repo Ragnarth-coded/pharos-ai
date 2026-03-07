@@ -4,8 +4,8 @@ import { FilterBlock, CheckboxRow } from '@/components/shared/FilterControls';
 import { DaySelector } from '@/components/shared/DaySelector';
 import type { Severity, EventType } from '@/types/domain';
 import type { ConflictDay } from '@/types/domain';
-import { SEV_C, TYPE_C } from '@/lib/severity-colors';
-import { cn } from '@/lib/utils';
+import { SEV_C, TYPE_C } from '@/shared/lib/severity-colors';
+import { cn } from '@/shared/lib/utils';
 
 export const ALL_TYPES: EventType[] = ['MILITARY', 'DIPLOMATIC', 'INTELLIGENCE', 'ECONOMIC', 'HUMANITARIAN', 'POLITICAL'];
 

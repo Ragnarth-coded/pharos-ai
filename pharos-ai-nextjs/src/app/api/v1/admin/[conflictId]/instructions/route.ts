@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
-import { requireAdmin } from '@/lib/admin-auth';
-import { buildAgentManual } from '@/lib/agent-manual';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
+import { requireAdmin } from '@/server/lib/admin-auth';
+import { buildAgentManual } from '@/server/lib/agent-manual';
 import {
   MAP_ACTOR_KEYS,
   MAP_PRIORITIES,
@@ -12,7 +12,7 @@ import {
   KINETIC_STATUSES,
   INSTALLATION_STATUSES,
   STORY_ICON_NAMES,
-} from '@/lib/admin-validate';
+} from '@/server/lib/admin-validate';
 
 export async function GET(
   req: NextRequest,

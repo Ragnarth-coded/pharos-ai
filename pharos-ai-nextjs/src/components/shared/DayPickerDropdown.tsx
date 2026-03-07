@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { PopoverContent } from '@/components/ui/popover';
-import { dayLabel, getEventsForDay, getConflictForDay } from '@/lib/day-filter';
+import { dayLabel, getEventsForDay, getConflictForDay } from '@/shared/lib/day-filter';
 import type { IntelEvent, ConflictDaySnapshot } from '@/types/domain';
 
 type Props = {

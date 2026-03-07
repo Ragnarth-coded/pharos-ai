@@ -3,7 +3,7 @@
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandscapeHeader } from './LandscapeHeader';
-import { fmtTimeZ } from '@/lib/format';
+import { fmtTimeZ } from '@/shared/lib/format';
 import type { MapStory } from '@/types/domain';
 
 type Props = {

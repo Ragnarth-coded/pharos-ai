@@ -1,6 +1,6 @@
 'use client';
 
-import { fmtDate }  from '@/lib/format';
+import { fmtDate }  from '@/shared/lib/format';
 import { useConflict } from '@/api/conflicts';
 import { useEvents } from '@/api/events';
 import { useIsLandscapePhone } from '@/hooks/use-is-landscape-phone';

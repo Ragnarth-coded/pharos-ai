@@ -2,7 +2,7 @@
 
 import { useContext } from 'react';
 import { CasChip } from '@/components/overview/CasChip';
-import { getConflictForDay } from '@/lib/day-filter';
+import { getConflictForDay } from '@/shared/lib/day-filter';
 import { DashCtx } from '../DashCtx';
 
 export function SituationWidget() {

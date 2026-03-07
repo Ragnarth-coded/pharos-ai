@@ -3,7 +3,7 @@
 import { useContext, useMemo } from 'react';
 
 import XPostCard from '@/components/shared/XPostCard';
-import { getPostsForDay } from '@/lib/day-filter';
+import { getPostsForDay } from '@/shared/lib/day-filter';
 import { DashCtx } from '../DashCtx';
 import type { XPost } from '@/types/domain';
 

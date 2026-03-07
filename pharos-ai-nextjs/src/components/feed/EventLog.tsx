@@ -1,14 +1,14 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { fmtTime } from '@/lib/format';
+import { fmtTime } from '@/shared/lib/format';
 import { CheckCircle, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import type { IntelEvent } from '@/types/domain';
 import { useXPosts } from '@/api/x-posts';
-import { SEV_C } from '@/lib/severity-colors';
+import { SEV_C } from '@/shared/lib/severity-colors';
 const SEV_BG: Record<string, string> = {
   CRITICAL: 'var(--danger-dim)', HIGH: 'var(--warning-dim)', STANDARD: 'var(--info-dim)',
 };

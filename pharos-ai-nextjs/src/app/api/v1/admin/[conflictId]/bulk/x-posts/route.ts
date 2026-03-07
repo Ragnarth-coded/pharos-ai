@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
-import { requireAdmin } from '@/lib/admin-auth';
-import { assertRequired, assertEnum, parseISODate, safeJson } from '@/lib/admin-validate';
-import { verifyXPost, shouldSkipVerification } from '@/lib/xai-verify';
-import { isXAIConfigured } from '@/lib/xai-client';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
+import { requireAdmin } from '@/server/lib/admin-auth';
+import { assertRequired, assertEnum, parseISODate, safeJson } from '@/server/lib/admin-validate';
+import { verifyXPost, shouldSkipVerification } from '@/server/lib/xai-verify';
+import { isXAIConfigured } from '@/server/lib/xai-client';
 import { SignificanceLevel, AccountType, PostType, VerificationStatus } from '@/generated/prisma/client';
 
 const SIGNIFICANCE_LEVELS = Object.values(SignificanceLevel);

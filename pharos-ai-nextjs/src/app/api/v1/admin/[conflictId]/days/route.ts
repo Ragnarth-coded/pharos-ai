@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
-import { requireAdmin } from '@/lib/admin-auth';
-import { assertRequired, assertIntRange, safeJson } from '@/lib/admin-validate';
-import { checkDaySnapshotEnforcement } from '@/lib/enforcement';
-import { isEnforcementMode, enforcementResponse } from '@/lib/enforcement-utils';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
+import { requireAdmin } from '@/server/lib/admin-auth';
+import { assertRequired, assertIntRange, safeJson } from '@/server/lib/admin-validate';
+import { checkDaySnapshotEnforcement } from '@/server/lib/enforcement';
+import { isEnforcementMode, enforcementResponse } from '@/server/lib/enforcement-utils';
 
 export async function POST(
   req: NextRequest,

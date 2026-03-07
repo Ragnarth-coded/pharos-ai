@@ -3,9 +3,9 @@
 import { useContext, useMemo } from 'react';
 import Link from 'next/link';
 
-import { fmtTimeZ } from '@/lib/format';
-import { SEV_C } from '@/lib/severity-colors';
-import { getConflictForDay, getEventsForDay } from '@/lib/day-filter';
+import { fmtTimeZ } from '@/shared/lib/format';
+import { SEV_C } from '@/shared/lib/severity-colors';
+import { getConflictForDay, getEventsForDay } from '@/shared/lib/day-filter';
 import { DashCtx } from '../DashCtx';
 
 const SEV_CLS: Record<string, string> = {

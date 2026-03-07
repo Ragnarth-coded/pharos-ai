@@ -1,7 +1,7 @@
 'use client';
 import Link           from 'next/link';
 import { usePathname } from 'next/navigation';
-import { fmtDate }    from '@/lib/format';
+import { fmtDate }    from '@/shared/lib/format';
 import { useBootstrap } from '@/api/bootstrap';
 import { useEvents } from '@/api/events';
 import { useConflict } from '@/api/conflicts';

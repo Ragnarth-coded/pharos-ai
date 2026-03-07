@@ -4,9 +4,9 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { Map as MapIcon, ArrowRight, Zap, Users, BookOpen, TrendingUp } from 'lucide-react';
 
-import { fmtTimeZ } from '@/lib/format';
-import { SEV_C } from '@/lib/severity-colors';
-import { getConflictForDay, getEventsForDay, getPostsForDay } from '@/lib/day-filter';
+import { fmtTimeZ } from '@/shared/lib/format';
+import { SEV_C } from '@/shared/lib/severity-colors';
+import { getConflictForDay, getEventsForDay, getPostsForDay } from '@/shared/lib/day-filter';
 import { CasChip } from '@/components/overview/CasChip';
 import XPostCard from '@/components/shared/XPostCard';
 

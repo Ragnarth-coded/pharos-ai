@@ -1,4 +1,4 @@
-import { publicConflictId } from '@/lib/env';
+import { publicConflictId } from '@/shared/lib/env';
 
 const CONFLICT_ID = publicConflictId;
 

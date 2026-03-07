@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err, parseDayRange } from '@/lib/api-utils';
+import { prisma } from '@/server/lib/db';
+import { ok, err, parseDayRange } from '@/server/lib/api-utils';
 import type { Prisma } from '@/generated/prisma/client';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

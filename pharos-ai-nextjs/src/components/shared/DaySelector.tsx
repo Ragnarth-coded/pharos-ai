@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { DayPickerDropdown } from '@/components/shared/DayPickerDropdown';
-import { dayLabel, dayShort } from '@/lib/day-filter';
+import { dayLabel, dayShort } from '@/shared/lib/day-filter';
 import { useConflictDay } from '@/hooks/use-conflict-day';
 import { useEvents } from '@/api/events';
 import { useConflictDays } from '@/api/conflicts';

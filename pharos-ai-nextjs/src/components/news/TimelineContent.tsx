@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { NewsTimeline } from '@/components/news/NewsTimeline';
 import { useRssFeeds } from '@/api/rss';
 import { PERSPECTIVE_COLORS } from '@/lib/news-colors';
-import { timeAgo } from '@/lib/format';
+import { timeAgo } from '@/shared/lib/format';
 import { clientCache, CLIENT_FRESH_TTL } from '@/lib/client-cache';
 import { useIsLandscapePhone } from '@/hooks/use-is-landscape-phone';
 import { useLandscapeScrollEmitter } from '@/hooks/use-landscape-scroll-emitter';

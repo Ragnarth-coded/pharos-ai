@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { reassembleCasualties } from '@/lib/api-utils';
+import { prisma } from '@/server/lib/db';
+import { reassembleCasualties } from '@/server/lib/api-utils';
 
 function escapeXml(input: string): string {
   return input

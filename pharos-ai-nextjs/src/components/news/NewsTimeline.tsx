@@ -26,7 +26,7 @@ type NewsTimelineProps = {
 
 import { Button } from '@/components/ui/button';
 import { PERSPECTIVE_COLORS } from '@/lib/news-colors';
-import { ago } from '@/lib/format';
+import { ago } from '@/shared/lib/format';
 
 // ─── Tier → vertical distance from spine ──────────────────────
 

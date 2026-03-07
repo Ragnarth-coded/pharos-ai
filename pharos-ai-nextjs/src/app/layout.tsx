@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { ViewportHeightSync } from '@/components/layout/ViewportHeightSync';
 import { Toaster } from '@/components/ui/sonner';
 import { ReduxProvider } from '@/store/redux-provider';
-import { QueryProvider } from '@/lib/query-provider';
+import { QueryProvider } from '@/shared/lib/query-provider';
 
 import type { Metadata, Viewport } from 'next';
 

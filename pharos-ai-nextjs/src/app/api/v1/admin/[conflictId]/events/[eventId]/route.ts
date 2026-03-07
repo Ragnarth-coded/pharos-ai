@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { ok, err } from '@/lib/api-utils';
-import { requireAdmin } from '@/lib/admin-auth';
-import { assertEnum, parseISODate , safeJson } from '@/lib/admin-validate';
+import { prisma } from '@/server/lib/db';
+import { ok, err } from '@/server/lib/api-utils';
+import { requireAdmin } from '@/server/lib/admin-auth';
+import { assertEnum, parseISODate , safeJson } from '@/server/lib/admin-validate';
 import { Severity, EventType } from '@/generated/prisma/client';
 
 const SEVERITIES = Object.values(Severity);

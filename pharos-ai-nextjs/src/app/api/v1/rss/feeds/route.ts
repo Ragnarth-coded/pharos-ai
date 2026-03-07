@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/db';
-import { ok } from '@/lib/api-utils';
+import { prisma } from '@/server/lib/db';
+import { ok } from '@/server/lib/api-utils';
 
 export async function GET() {
   const feeds = await prisma.rssFeed.findMany({

@@ -8,11 +8,11 @@ import { Progress } from '@/components/ui/progress';
 import Flag from '@/components/shared/Flag';
 import { DaySelector } from '@/components/shared/DaySelector';
 import { ACT_C, STA_C } from '@/data/iran-actors';
-import { getActorForDay } from '@/lib/day-filter';
+import { getActorForDay } from '@/shared/lib/day-filter';
 import type { Actor, ConflictDay } from '@/types/domain';
 import { useActors } from '@/api/actors';
 import { useXPosts } from '@/api/x-posts';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 type Props = {
   selectedId: string | null;

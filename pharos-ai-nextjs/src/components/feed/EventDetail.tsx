@@ -7,8 +7,8 @@ import { SectionDivider } from '@/components/shared/SectionDivider';
 import XPostCard from '@/components/shared/XPostCard';
 import { useXPostsByEvent } from '@/api/x-posts';
 import type { IntelEvent, XPost } from '@/types/domain';
-import { SEV_C } from '@/lib/severity-colors';
-import { cn } from '@/lib/utils';
+import { SEV_C } from '@/shared/lib/severity-colors';
+import { cn } from '@/shared/lib/utils';
 const TIER_C: Record<number, string> = { 1: 'var(--success)', 2: 'var(--warning)', 3: 'var(--t4)' };
 const TIER_L: Record<number, string> = { 1: 'T1', 2: 'T2', 3: 'T3' };
 const STANCE_C: Record<string, string> = {

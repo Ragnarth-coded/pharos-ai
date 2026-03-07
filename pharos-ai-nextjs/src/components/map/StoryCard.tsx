@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { fmtDate, fmtTimeZ } from '@/lib/format';
+import { fmtDate, fmtTimeZ } from '@/shared/lib/format';
 import StoryIcon from './StoryIcon';
 import { useMapData } from '@/api/map';
 

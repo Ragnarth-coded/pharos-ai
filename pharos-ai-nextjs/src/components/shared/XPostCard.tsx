@@ -5,9 +5,9 @@ import { Tweet } from 'react-tweet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ago } from '@/lib/format';
+import { ago } from '@/shared/lib/format';
 import type { XPost, VerificationStatus } from '@/types/domain';
-import { fmt } from '@/lib/format';
+import { fmt } from '@/shared/lib/format';
 
 // ── Account type styles ───────────────────────────────────────────────────────
 // Uses CSS tokens — no hex literals (CODEX §1.2)

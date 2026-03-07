@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
-import { dayLabel, dayShort, dayIndex } from '@/lib/day-filter';
+import { dayLabel, dayShort, dayIndex } from '@/shared/lib/day-filter';
 import { useBootstrap } from '@/api/bootstrap';
 
 export function useConflictDay() {

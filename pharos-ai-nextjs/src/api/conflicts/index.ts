@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { publicConflictId } from '@/lib/env';
+import { publicConflictId } from '@/shared/lib/env';
 import type { Conflict, ConflictDaySnapshot } from '@/types/domain';
 
 import { api } from '../client';

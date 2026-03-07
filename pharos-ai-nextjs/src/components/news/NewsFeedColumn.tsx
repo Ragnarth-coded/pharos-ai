@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import type { RssFeed, FeedItem, FeedResult } from '@/types/domain';
-import { timeAgo } from '@/lib/format';
+import { timeAgo } from '@/shared/lib/format';
 import { useIsLandscapePhone } from '@/hooks/use-is-landscape-phone';
 import { useLandscapeScrollEmitter } from '@/hooks/use-landscape-scroll-emitter';
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { publicConflictId } from '@/lib/env';
+import { publicConflictId } from '@/shared/lib/env';
 import type { IntelEvent, EventFilters } from '@/types/domain';
 
 import { api, buildUrl } from '../client';

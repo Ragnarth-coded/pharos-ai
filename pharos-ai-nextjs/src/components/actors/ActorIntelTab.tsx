@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SectionDivider } from '@/components/shared/SectionDivider';
 import type { Actor } from '@/types/domain';
 import type { ConflictDay, ActorDaySnapshot, RecentAction } from '@/types/domain';
-import { TYPE_C } from '@/lib/severity-colors';
+import { TYPE_C } from '@/shared/lib/severity-colors';
 
 type Props = {
   actor: Actor;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/lib/db';
 import type { Prisma } from '@/generated/prisma/client';
 
 function escapeXml(input: string): string {
