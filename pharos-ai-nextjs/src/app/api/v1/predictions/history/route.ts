@@ -3,7 +3,7 @@ import type { TimePoint } from '@/types/domain';
 
 const CLOB = 'https://clob.polymarket.com';
 
-interface CacheEntry { data: unknown; ts: number; }
+type CacheEntry = { data: unknown; ts: number };
 const cache = new Map<string, CacheEntry>();
 const FRESH_TTL = 3 * 60 * 1000;
 const STALE_TTL = 15 * 60 * 1000;

@@ -28,17 +28,9 @@ export const STORY_ICON_NAMES = [
   'Zap', 'Target', 'Swords', 'Shield', 'Flame', 'AlertTriangle', 'Building2',
 ] as const;
 
-/**
- * Validation helpers for admin API request bodies.
- * Each returns an error string on failure or null on success.
- */
+/** Admin validation helpers — return error string or null. */
 
-/**
- * Safely parse JSON body. Returns the parsed object, or a NextResponse error.
- * Usage:
- *   const body = await safeJson(req);
- *   if (body instanceof NextResponse) return body;
- */
+/** Parse JSON body; returns parsed object or NextResponse error. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function safeJson(req: NextRequest): Promise<any> {
   try {
@@ -49,7 +41,6 @@ export async function safeJson(req: NextRequest): Promise<any> {
   }
 }
 
-/** Check that all required fields are present and non-empty in a body object */
 export function assertRequired(
   body: Record<string, unknown>,
   fields: string[],
@@ -62,7 +53,6 @@ export function assertRequired(
   return null;
 }
 
-/** Check that a value is one of the allowed enum values */
 export function assertEnum(
   value: unknown,
   allowed: readonly string[],
@@ -74,7 +64,6 @@ export function assertEnum(
   return null;
 }
 
-/** Check that a value is an integer within [min, max] */
 export function assertIntRange(
   value: unknown,
   min: number,
@@ -87,7 +76,6 @@ export function assertIntRange(
   return null;
 }
 
-/** Parse an ISO date string, return Date or error string */
 export function parseISODate(value: unknown, field: string): Date | string {
   if (typeof value !== 'string') {
     return `Invalid ${field}: must be an ISO date string`;

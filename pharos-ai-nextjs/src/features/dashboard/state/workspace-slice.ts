@@ -3,7 +3,7 @@ import { PRESETS, type Column, type PresetId, type WidgetKey } from './presets';
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
-export interface WorkspaceState {
+export type WorkspaceState = {
   columns: Column[];
   activePreset: PresetId | 'custom';
   editing: boolean;
@@ -11,7 +11,7 @@ export interface WorkspaceState {
   columnSizes: Record<string, number>;
   /** Row panel sizes per column: { [colId]: { [panelId]: percentage } } */
   rowSizes: Record<string, Record<string, number>>;
-}
+};
 
 function newColId() {
   return `col-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;

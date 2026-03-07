@@ -35,12 +35,10 @@ export async function POST(
   const accErr = assertEnum(body.accountType, ACCOUNT_TYPES, 'accountType');
   if (accErr) return err('VALIDATION', accErr);
 
-  // postType validation — default XPOST
   const postType: PostType = body.postType ?? 'XPOST';
   const ptErr = assertEnum(postType, POST_TYPE_VALUES, 'postType');
   if (ptErr) return err('VALIDATION', ptErr);
 
-  // tweetId required when postType = XPOST
   if (postType === PostType.XPOST && !body.tweetId) {
     return err('VALIDATION', 'tweetId is required when postType is XPOST. Provide a realistic numeric ID string (e.g. "1894731234567890123").');
   }
@@ -51,7 +49,6 @@ export async function POST(
   const conflict = await prisma.conflict.findUnique({ where: { id: conflictId } });
   if (!conflict) return err('NOT_FOUND', `Conflict ${conflictId} not found`, 404);
 
-  // Enforcement dry-run
   if (isEnforcementMode(req)) {
     const issues = checkXPostEnforcement(body);
     return enforcementResponse(body, issues);
@@ -60,7 +57,7 @@ export async function POST(
   const existing = await prisma.xPost.findUnique({ where: { id: body.id } });
   if (existing) return err('DUPLICATE', `X post ${body.id} already exists`, 409);
 
-  // FK validation for optional references
+  // FK checks
   if (body.eventId) {
     const event = await prisma.intelEvent.findFirst({ where: { id: body.eventId, conflictId } });
     if (!event) return err('VALIDATION', `Event ${body.eventId} not found`);
@@ -91,7 +88,6 @@ export async function POST(
     verifiedAt = new Date();
     xaiCitations = outcome.citations;
 
-    // Reject XPOST type with failed verification
     if (postType === PostType.XPOST && outcome.status === 'FAILED') {
       return err(
         'VERIFICATION_FAILED',

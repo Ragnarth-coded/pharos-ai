@@ -24,7 +24,7 @@ export default function TimelineTrack({ histogram, ticks, leftPct, rightPct, isA
   const handleOffset = handleW / 2;
   const trackHeight = isMobile ? 38 : 32;
   return (
-    <div ref={trackRef} className="relative cursor-crosshair" style={{ height: trackHeight, touchAction: 'none' }} onClick={onClick} onTouchStart={onTouchStart}>
+    <div ref={trackRef} className="relative cursor-crosshair" style={{ height: trackHeight, touchAction: 'none' }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick?.(e as unknown as React.MouseEvent); }} onClick={onClick} onTouchStart={onTouchStart}>
       {/* Histogram bars */}
       {histogram.map((h, i) => {
         const pL = (i / BUCKETS) * 100;

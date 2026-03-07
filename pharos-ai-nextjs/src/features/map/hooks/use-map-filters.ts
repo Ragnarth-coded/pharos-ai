@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo, useEffect, useCallback } from 'react';
 
 import { useAppSelector, useAppDispatch } from '@/shared/state';

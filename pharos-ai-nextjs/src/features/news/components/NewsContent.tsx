@@ -92,7 +92,6 @@ export function NewsContent() {
       setFeedData(map);
       setLastRefresh(now);
     } catch (err) {
-      console.error('Feed batch fetch error:', err);
     } finally {
       setRefreshing(false);
     }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-interface CacheEntry { buffer: ArrayBuffer; contentType: string; ts: number; }
+type CacheEntry = { buffer: ArrayBuffer; contentType: string; ts: number };
 const cache = new Map<string, CacheEntry>();
 const TTL = 60 * 60 * 1000;
 const MAX_CACHE = 500;

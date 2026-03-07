@@ -19,7 +19,6 @@ export async function GET(
   const today = new Date().toISOString().slice(0, 10);
   const todayDate = new Date(today + 'T00:00:00Z');
 
-  // Run all validation queries in parallel
   const [
     eventsWithoutSources,
     eventsWithoutResponses,

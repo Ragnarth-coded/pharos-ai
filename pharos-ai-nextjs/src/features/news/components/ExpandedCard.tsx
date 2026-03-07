@@ -53,7 +53,7 @@ export function ExpandedCard({ article, x, cardTop, color, defocus }: Props) {
           <div className="w-full overflow-hidden bg-[#0a0a0f]" style={{ height: '180px' }}>
             <Image
               src={proxyImg(article.imageUrl!)}
-              alt=""
+              alt={article.title}
               width={CARD_W + 160}
               height={180}
               className="w-full h-full object-cover"

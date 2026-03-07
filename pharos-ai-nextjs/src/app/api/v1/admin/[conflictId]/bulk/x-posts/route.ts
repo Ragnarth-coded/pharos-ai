@@ -87,7 +87,6 @@ export async function POST(
     const ptErr = assertEnum(postType, POST_TYPE_VALUES, 'postType');
     if (ptErr) { errors.push({ index: i, error: ptErr }); continue; }
 
-    // tweetId required for XPOST
     if (postType === 'XPOST' && !item.tweetId) {
       errors.push({ index: i, error: 'tweetId is required when postType is XPOST' });
       continue;
@@ -96,7 +95,6 @@ export async function POST(
     const ts = parseISODate(item.timestamp, 'timestamp');
     if (typeof ts === 'string') { errors.push({ index: i, error: ts }); continue; }
 
-    // Run inline verification for XPOST types
     let verificationStatus: VerificationStatus = VerificationStatus.UNVERIFIED;
     let verificationResult: Record<string, unknown> | null = null;
     let verifiedAt: Date | null = null;
@@ -115,7 +113,6 @@ export async function POST(
       verifiedAt = new Date();
       xaiCitations = outcome.citations;
 
-      // Reject XPOST type with failed verification
       if (postType === 'XPOST' && outcome.status === 'FAILED') {
         errors.push({
           index: i,
@@ -162,7 +159,6 @@ export async function POST(
     );
   }
 
-  // Check for duplicates
   const ids = validated.map(v => v.id);
   const existing = await prisma.xPost.findMany({
     where: { id: { in: ids } },
@@ -173,7 +169,6 @@ export async function POST(
     return err('DUPLICATE', `X posts already exist: ${dupes.join(', ')}`, 409);
   }
 
-  // Create in transaction
   const created: string[] = [];
   await prisma.$transaction(async (tx) => {
     for (const item of validated) {

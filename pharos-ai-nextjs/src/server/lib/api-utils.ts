@@ -14,7 +14,6 @@ export function err(code: string, message: string, status = 400, init?: JsonInit
 
 // ─── Query helpers ───────────────────────────────────────────────────────────
 
-/** Parse a comma-separated query param into an array */
 export function parseQueryArray(param: string | null): string[] {
   if (!param) return [];
   return param.split(',').map(s => s.trim()).filter(Boolean);
@@ -30,13 +29,13 @@ export function parseDayRange(day: string): { gte: Date; lt: Date } {
 
 // ─── Casualty reassembly ────────────────────────────────────────────────────
 
-interface CasualtySummaryRow {
+type CasualtySummaryRow = {
   faction: string;
   killed: number;
   wounded: number;
   civilians: number;
   injured: number;
-}
+};
 
 /**
  * Reassemble flat CasualtySummary rows into the nested domain.ts format:
@@ -71,7 +70,6 @@ export function reassembleCasualties(rows: CasualtySummaryRow[]) {
 
 // ─── Actor type mapping ─────────────────────────────────────────────────────
 
-/** Map Prisma ActorType enum to domain.ts string */
 export function mapActorTypeToApi(type: string): string {
   if (type === 'NON_STATE') return 'NON-STATE';
   return type;

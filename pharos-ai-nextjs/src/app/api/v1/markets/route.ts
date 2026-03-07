@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { MarketResult } from '@/types/domain';
 
-interface CacheEntry { data: unknown; ts: number; }
+type CacheEntry = { data: unknown; ts: number };
 const cache = new Map<string, CacheEntry>();
 const FRESH_TTL = 2 * 60 * 1000;
 const STALE_TTL = 10 * 60 * 1000;
 const refetching = new Set<string>();
 
-interface YFChartResult {
+type YFChartResult = {
   meta: {
     symbol: string; currency: string; regularMarketPrice: number;
     previousClose: number; chartPreviousClose?: number;
   };
   timestamp: number[];
   indicators: { quote: { close: (number | null)[] }[] };
-}
+};
 
 async function fetchTicker(ticker: string, range: string, interval: string): Promise<MarketResult> {
   try {

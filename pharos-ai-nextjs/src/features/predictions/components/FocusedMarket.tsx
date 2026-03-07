@@ -49,7 +49,7 @@ export function FocusedMarket({ market, group, onClose }: Props) {
       const res = await fetch(`/api/v1/predictions/history?tokenId=${encodeURIComponent(market.yesTokenId)}&range=${r.key}`);
       const d = await res.json();
       setHistory(d.history ?? []);
-    } catch {}
+    } catch { /* network error — user sees stale data */ }
     finally { setChartLoading(false); }
   }, [market.yesTokenId]);
 

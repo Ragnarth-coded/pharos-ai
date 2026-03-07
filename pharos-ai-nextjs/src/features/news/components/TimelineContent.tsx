@@ -64,7 +64,6 @@ export function TimelineContent() {
       setFeedData(map);
       setLastRefresh(now);
     } catch (err) {
-      console.error('Feed fetch error:', err);
     } finally {
       setRefreshing(false);
     }
@@ -235,7 +234,7 @@ export function TimelineContent() {
                     <div className="w-[88px] h-[60px] rounded overflow-hidden shrink-0 bg-[var(--bg-2)]">
                       <Image
                         src={item.imageUrl}
-                        alt=""
+                        alt={item.title ?? ''}
                         width={88}
                         height={60}
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"

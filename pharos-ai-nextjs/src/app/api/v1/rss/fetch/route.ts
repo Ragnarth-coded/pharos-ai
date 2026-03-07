@@ -23,7 +23,7 @@ const STALE_TTL = 60 * 60 * 1000;
 const ERROR_TTL = 2 * 60 * 1000;
 const refetchingSet = new Set<string>();
 
-interface CacheEntry { data: FeedResult; ts: number; }
+type CacheEntry = { data: FeedResult; ts: number };
 const cache = new Map<string, CacheEntry>();
 
 function normalizeDate(raw: string | undefined): string | undefined {

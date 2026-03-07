@@ -4,12 +4,12 @@ import { queryKeys } from '@/shared/lib/query/keys';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export interface MilSpendPoint {
+export type MilSpendPoint = {
   year: number;
   value: number;
-}
+};
 
-export interface MilitarySpendingData {
+export type MilitarySpendingData = {
   spending: MilSpendPoint[]; // current USD, sorted by year asc
   gdpPct: MilSpendPoint[];  // percentage of GDP
   armedForces: MilSpendPoint[];
@@ -17,7 +17,7 @@ export interface MilitarySpendingData {
   gdpGrowth: MilSpendPoint[];
   refugeePopulation: MilSpendPoint[];
   gini: MilSpendPoint[];
-}
+};
 
 // ─── Hook ───────────────────────────────────────────────────────────────────
 

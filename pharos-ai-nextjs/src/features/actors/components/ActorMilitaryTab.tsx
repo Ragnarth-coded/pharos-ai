@@ -6,7 +6,7 @@ import { MilitaryDataTable } from '@/features/actors/components/MilitaryDataTabl
 import {
   latestPoint, fmtUsd, fmtPct, fmtPeople, fmtIndex,
   yoyChange, Sparkline, YoyBadge, MetricCard, Skeleton,
-} from '@/features/actors/components/military-helpers';
+} from '@/features/actors/components/MilitaryHelpers';
 import { useMilitarySpending } from '@/features/actors/queries/world-bank';
 import type { Actor } from '@/types/domain';
 

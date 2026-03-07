@@ -50,7 +50,7 @@ export function NormalCard({ article, x, cardTop, isHovered, onMouseEnter, onMou
           <div className="w-full overflow-hidden bg-[#0a0a0f]" style={{ height: `${IMG_H}px` }}>
             <Image
               src={proxyImg(article.imageUrl!)}
-              alt=""
+              alt={article.title}
               width={CARD_W}
               height={IMG_H}
               className="w-full h-full object-cover"

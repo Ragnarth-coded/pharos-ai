@@ -9,7 +9,7 @@ const QUERIES = [
   'iran oil', 'irgc', 'iran us war', 'persian gulf',
 ];
 
-interface RawMarket {
+type RawMarket = {
   id: string; slug?: string; question: string; conditionId: string;
   outcomes: string; outcomePrices: string; volume: string | number;
   volume24hr: number; volume1wk: number; volume1mo: number;
@@ -17,15 +17,15 @@ interface RawMarket {
   endDate?: string; startDate?: string; groupItemTitle?: string;
   lastTradePrice?: number; bestBid?: number; bestAsk?: number;
   spread?: number; clobTokenIds?: string;
-}
+};
 
-interface PolyEvent {
+type PolyEvent = {
   id: string; title: string; description: string;
   volume: number; volume24hr: number; volume1wk: number; volume1mo: number; volume1yr: number;
   liquidity: number; openInterest: number; competitive: number;
   active: boolean; closed: boolean; startDate: string; endDate: string;
   image: string; markets: RawMarket[];
-}
+};
 
 function parseSubMarket(m: RawMarket): SubMarket {
   let outcomes: string[] = [];

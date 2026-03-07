@@ -3,12 +3,12 @@ import { ok, err, parseQueryArray } from '@/server/lib/api-utils';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-interface CacheEntry {
+type CacheEntry = {
   data: Record<string, CountryWorldBankData>;
   ts: number;
-}
+};
 
-interface CountryWorldBankData {
+type CountryWorldBankData = {
   spending: { year: number; value: number }[];
   gdpPct: { year: number; value: number }[];
   armedForces: { year: number; value: number }[];
@@ -16,12 +16,12 @@ interface CountryWorldBankData {
   gdpGrowth: { year: number; value: number }[];
   refugeePopulation: { year: number; value: number }[];
   gini: { year: number; value: number }[];
-}
+};
 
-interface WorldBankRow {
+type WorldBankRow = {
   date: string;
   value: number | null;
-}
+};
 
 // ─── In-memory cache (24 h TTL) ────────────────────────────────────────────
 

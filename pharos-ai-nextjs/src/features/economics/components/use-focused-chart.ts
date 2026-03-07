@@ -92,7 +92,7 @@ export function useFocusedChart(
 
         // Remove old price line
         if (anchorLineRef.current) {
-          try { series.removePriceLine(anchorLineRef.current); } catch {}
+          try { series.removePriceLine(anchorLineRef.current); } catch { /* price line already removed */ }
         }
         // Add horizontal reference line at anchor
         anchorLineRef.current = series.createPriceLine({

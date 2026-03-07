@@ -1,11 +1,11 @@
 import type { FeedItem } from '@/types/domain';
 
 /** A cached feed result on the client side. */
-export interface CachedFeed {
+export type CachedFeed = {
   feedId: string;
   items: FeedItem[];
   fetchedAt: number;
-}
+};
 
 /** Module-level client cache — persists across re-renders within same session. */
 export const clientCache = new Map<string, CachedFeed>();

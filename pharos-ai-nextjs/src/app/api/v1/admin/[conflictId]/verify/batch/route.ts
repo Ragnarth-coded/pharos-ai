@@ -1,10 +1,4 @@
-/**
- * POST /api/v1/admin/{conflictId}/verify/batch
- *
- * Verify multiple X posts in a single request.
- * Supports either specific postIds or a filter to find unverified posts.
- * Max 20 posts per batch for cost control.
- */
+/** Batch verify X posts (max 20 for cost control). */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/lib/db';
@@ -36,11 +30,9 @@ export async function POST(
   const conflict = await prisma.conflict.findUnique({ where: { id: conflictId } });
   if (!conflict) return err('NOT_FOUND', `Conflict ${conflictId} not found`, 404);
 
-  // Determine which posts to verify
   let posts;
 
   if (body.postIds && Array.isArray(body.postIds)) {
-    // Specific post IDs
     if (body.postIds.length > MAX_BATCH) {
       return err('VALIDATION', `Maximum ${MAX_BATCH} posts per batch request`);
     }
@@ -48,7 +40,6 @@ export async function POST(
       where: { id: { in: body.postIds }, conflictId },
     });
   } else {
-    // Filter-based selection
     const where: Prisma.XPostWhereInput = { conflictId };
     const limit = Math.min(body.filter?.limit ?? MAX_BATCH, MAX_BATCH);
 
@@ -97,7 +88,6 @@ export async function POST(
       content: post.content,
     });
 
-    // Update DB
     await prisma.xPost.update({
       where: { id: post.id },
       data: {
@@ -118,7 +108,6 @@ export async function POST(
       citations: outcome.citations,
     });
 
-    // Update summary counts
     switch (outcome.status) {
       case 'VERIFIED': summary.verified++; break;
       case 'FAILED': summary.failed++; break;

@@ -1,6 +1,6 @@
 'use client';
 
-import { fmtUsd, fmtPct, fmtPeople } from '@/features/actors/components/military-helpers';
+import { fmtUsd, fmtPct, fmtPeople } from '@/features/actors/components/MilitaryHelpers';
 
 type Props = {
   allYears: number[];

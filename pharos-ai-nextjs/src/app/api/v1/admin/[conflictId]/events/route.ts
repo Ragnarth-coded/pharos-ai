@@ -21,7 +21,6 @@ export async function POST(
   const body = await safeJson(req);
   if (body instanceof NextResponse) return body;
 
-  // Validate required fields
   const missing = assertRequired(body, [
     'id', 'timestamp', 'severity', 'type', 'title', 'location', 'summary', 'fullContent',
   ]);
@@ -36,11 +35,10 @@ export async function POST(
   const ts = parseISODate(body.timestamp, 'timestamp');
   if (typeof ts === 'string') return err('VALIDATION', ts);
 
-  // Check conflict exists
   const conflict = await prisma.conflict.findUnique({ where: { id: conflictId } });
   if (!conflict) return err('NOT_FOUND', `Conflict ${conflictId} not found`, 404);
 
-  // Enforcement dry-run — quality checks, no DB write
+  // Enforcement dry-run (no DB write)
   if (isEnforcementMode(req)) {
     const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
     const recentEvents = await prisma.intelEvent.findMany({
@@ -53,11 +51,10 @@ export async function POST(
     return enforcementResponse(body, issues);
   }
 
-  // Check for duplicate
   const existing = await prisma.intelEvent.findUnique({ where: { id: body.id } });
   if (existing) return err('DUPLICATE', `Event ${body.id} already exists`, 409);
 
-  // Validate actor response FKs if provided
+  // Validate actor FK refs
   if (body.actorResponses?.length) {
     const actorIds = body.actorResponses.map((r: { actorId: string }) => r.actorId);
     const actors = await prisma.actor.findMany({

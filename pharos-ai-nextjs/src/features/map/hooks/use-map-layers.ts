@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { ArcLayer, ScatterplotLayer, TextLayer, PolygonLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';

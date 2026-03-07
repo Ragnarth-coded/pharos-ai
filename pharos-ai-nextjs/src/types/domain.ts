@@ -1,22 +1,22 @@
 // Central domain types for Pharos.
-// All export type / export interface declarations live here.
+// All shared type declarations live here.
 // Data files in src/data/ import from here — they never define types.
-// Component prop interfaces stay local to the component.
+// Component prop types stay local to the component.
 
 // ── Conflict Days ────────────────────────────────────────────────────────────
 
 export type ConflictDay = string;
 
-export interface ActorDaySnapshot {
+export type ActorDaySnapshot = {
   activityLevel: ActivityLevel;
   activityScore: number;
   stance: Stance;
   saying: string;
   doing: string[];
   assessment: string;
-}
+};
 
-export interface ConflictDaySnapshot {
+export type ConflictDaySnapshot = {
   day: ConflictDay;
   dayLabel: string;
   summary: string;
@@ -31,14 +31,14 @@ export interface ConflictDaySnapshot {
   };
   economicImpact: { chips: { label: string; val: string; sub: string; color: string }[]; narrative: string };
   scenarios: { label: string; subtitle: string; color: string; prob: string; body: string }[];
-}
+};
 
 // ── Conflict ─────────────────────────────────────────────────────────────────
 
 export type ThreatLevel = 'CRITICAL' | 'HIGH' | 'ELEVATED' | 'MONITORING';
 export type ConflictStatus = 'ONGOING' | 'PAUSED' | 'CEASEFIRE' | 'RESOLVED';
 
-export interface Conflict {
+export type Conflict = {
   id: string;
   name: string;
   codename: { us: string; il: string };
@@ -51,22 +51,22 @@ export interface Conflict {
   keyFacts: string[];
   objectives: { us: string; il: string };
   commanders: { us: string[]; il: string[]; ir: string[] };
-}
+};
 
 // ── Actors ───────────────────────────────────────────────────────────────────
 
 export type ActivityLevel = 'CRITICAL' | 'HIGH' | 'ELEVATED' | 'MODERATE';
 export type Stance = 'AGGRESSOR' | 'DEFENDER' | 'RETALIATING' | 'PROXY' | 'NEUTRAL' | 'CONDEMNING';
 
-export interface RecentAction {
+export type RecentAction = {
   date: string;
   type: 'MILITARY' | 'DIPLOMATIC' | 'POLITICAL' | 'ECONOMIC' | 'INTELLIGENCE';
   description: string;
   verified: boolean;
   significance: 'HIGH' | 'MEDIUM' | 'LOW';
-}
+};
 
-export interface Actor {
+export type Actor = {
   id: string;
   name: string;
   fullName: string;
@@ -87,29 +87,29 @@ export interface Actor {
   keyFigures: string[];
   linkedEventIds: string[];
   daySnapshots: Record<ConflictDay, ActorDaySnapshot>;
-}
+};
 
 // ── Events ───────────────────────────────────────────────────────────────────
 
 export type Severity = 'CRITICAL' | 'HIGH' | 'STANDARD';
 export type EventType = 'MILITARY' | 'DIPLOMATIC' | 'INTELLIGENCE' | 'ECONOMIC' | 'HUMANITARIAN' | 'POLITICAL';
 
-export interface Source {
+export type Source = {
   name: string;
   tier: 1 | 2 | 3;
   reliability: number;
   url?: string;
-}
+};
 
-export interface ActorResponse {
+export type ActorResponse = {
   actorId: string;
   actorName: string;
   stance: 'SUPPORTING' | 'OPPOSING' | 'NEUTRAL' | 'UNKNOWN';
   type: string;
   statement: string;
-}
+};
 
-export interface IntelEvent {
+export type IntelEvent = {
   id: string;
   timestamp: string;
   severity: Severity;
@@ -122,7 +122,7 @@ export interface IntelEvent {
   sources: Source[];
   actorResponses: ActorResponse[];
   tags: string[];
-}
+};
 
 // ── X Posts (Field Signals) ───────────────────────────────────────────────────
 
@@ -132,7 +132,7 @@ export type AccountType = 'military' | 'government' | 'journalist' | 'analyst' |
 export type PostType = 'XPOST' | 'NEWS_ARTICLE' | 'OFFICIAL_STATEMENT' | 'PRESS_RELEASE' | 'ANALYSIS';
 export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'FAILED' | 'PARTIAL' | 'SKIPPED';
 
-export interface XPost {
+export type XPost = {
   id: string;
   tweetId?: string;
   postType?: PostType;
@@ -159,55 +159,55 @@ export interface XPost {
   verificationStatus?: VerificationStatus;
   verifiedAt?: string;
   xaiCitations?: string[];
-}
+};
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 
-export interface BootstrapData {
+export type BootstrapData = {
   conflictId: string;
   conflictName: string;
   days: string[];
   status: string;
   threatLevel: string;
   escalation: number;
-}
+};
 
 // ── API filter types ─────────────────────────────────────────────────────────
 
-export interface EventFilters {
+export type EventFilters = {
   day?: string;
   severity?: string;
   type?: string;
   verified?: boolean;
-}
+};
 
-export interface XPostFilters {
+export type XPostFilters = {
   day?: string;
   significance?: string;
   accountType?: string;
   pharosOnly?: boolean;
   verificationStatus?: VerificationStatus;
-}
+};
 
-export interface EconFilters {
+export type EconFilters = {
   tier?: number;
   category?: string;
-}
+};
 
 // ── Map data types ───────────────────────────────────────────────────────────
 // Map feature types (StrikeArc, MissileTrack, etc.) use Extract<> from map
-// token enums — they stay in src/data/mapData.ts, co-located with their
+// token enums — they stay in src/data/map-data.ts, co-located with their
 // token definitions. MapDataResponse re-exports them for the API layer.
 
 // ── Map stories ───────────────────────────────────────────────────────────────
 
-export interface StoryEvent {
+export type StoryEvent = {
   time: string;
   label: string;
   type: 'STRIKE' | 'RETALIATION' | 'INTEL' | 'NAVAL' | 'POLITICAL';
-}
+};
 
-export interface MapStory {
+export type MapStory = {
   id: string;
   title: string;
   tagline: string;
@@ -222,11 +222,11 @@ export interface MapStory {
   keyFacts: string[];
   timestamp: string;
   events: StoryEvent[];
-}
+};
 
 // ── RSS News Feed ─────────────────────────────────────────────────────────────
 
-export interface FeedItem {
+export type FeedItem = {
   title: string;
   link: string;
   pubDate: string;
@@ -235,20 +235,20 @@ export interface FeedItem {
   categories?: string[];
   isoDate?: string;
   imageUrl?: string;
-}
+};
 
-export interface FeedResult {
+export type FeedResult = {
   feedId: string;
   feedTitle: string;
   items: FeedItem[];
   error?: string;
   cachedAt?: number;
   fresh?: boolean;
-}
+};
 
 // ── RSS Feed Sources ──────────────────────────────────────────────────────────
 
-export interface RssFeed {
+export type RssFeed = {
   id: string;
   name: string;
   url: string;
@@ -268,29 +268,29 @@ export interface RssFeed {
    * 4 = State media / niche (Press TV, RT, TASS, Xinhua)
    */
   tier: 1 | 2 | 3 | 4;
-}
+};
 
-export interface ConflictCollection {
+export type ConflictCollection = {
   id: string;
   name: string;
   description: string;
   /** The 4 key channels for this conflict */
   channels: ConflictChannel[];
-}
+};
 
-export interface ConflictChannel {
+export type ConflictChannel = {
   label: string;
   description: string;
   perspective: string;
   feedIds: string[];
   color: string;
-}
+};
 
 // ── Economic Indexes ──────────────────────────────────────────────────────────
 
 export type EconCategory = 'ENERGY' | 'SAFE_HAVEN' | 'EQUITIES' | 'VOLATILITY' | 'CURRENCY' | 'DEFENSE' | 'SHIPPING';
 
-export interface EconomicIndex {
+export type EconomicIndex = {
   id: string;
   ticker: string;          // Yahoo Finance symbol
   name: string;
@@ -300,18 +300,18 @@ export interface EconomicIndex {
   unit: string;            // "$", "%", "pts", "¢/gal"
   description: string;
   color: string;
-}
+};
 
 // ── Time-series points ────────────────────────────────────────────────────────
 
-export interface TimePoint {
+export type TimePoint = {
   t: number;  // unix timestamp (seconds)
   p: number;  // probability / price 0–1
-}
+};
 
 // ── Prediction markets ────────────────────────────────────────────────────────
 
-export interface SubMarket {
+export type SubMarket = {
   id: string;
   question: string;
   groupItemTitle: string;
@@ -330,9 +330,9 @@ export interface SubMarket {
   endDate: string;
   yesTokenId: string;
   conditionId: string;
-}
+};
 
-export interface PredictionMarket {
+export type PredictionMarket = {
   id: string;
   title: string;
   description: string;       // up to 800 chars
@@ -363,11 +363,11 @@ export interface PredictionMarket {
   yesTokenId: string;
   // all sub-markets in the event (group events have many)
   subMarkets: SubMarket[];
-}
+};
 
 // ── Market data (financial) ───────────────────────────────────────────────────
 
-export interface MarketResult {
+export type MarketResult = {
   ticker: string;
   price: number;
   previousClose: number;
@@ -376,9 +376,9 @@ export interface MarketResult {
   currency: string;
   chart: { time: number; value: number }[];
   error?: string;
-}
+};
 
-export interface MarketGroup {
+export type MarketGroup = {
   id: string;
   label: string;
   description: string;
@@ -386,4 +386,4 @@ export interface MarketGroup {
   bg: string;
   border: string;
   titleMatches: string[];
-}
+};

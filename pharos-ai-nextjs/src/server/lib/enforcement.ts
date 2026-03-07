@@ -1,10 +1,4 @@
-/**
- * enforcement.ts
- *
- * Quality/style checkers for ?enforcement=true dry-run mode.
- * All functions are pure — no DB access. DB-dependent checks are run
- * in the route handler and passed in as context.
- */
+/** Pure quality checkers for ?enforcement=true dry-run. DB-dependent context passed in. */
 
 export type EnforcementSeverity = 'error' | 'warning' | 'suggestion';
 

@@ -66,7 +66,7 @@ export function FocusedChart({ index, data: initialData, initialRangeKey = '5d',
       const json = await res.json();
       const result: MarketResult = json.results?.[0];
       if (result && !result.error) setData(result);
-    } catch {}
+    } catch { /* network error — user sees stale data */ }
     finally { setFetching(false); }
   }, [index.ticker]);
 

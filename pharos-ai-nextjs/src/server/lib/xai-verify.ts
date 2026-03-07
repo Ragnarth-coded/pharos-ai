@@ -1,10 +1,4 @@
-/**
- * xai-verify.ts
- *
- * Verification logic for X posts using the X AI (Grok) API.
- * Determines verification strategy based on postType and orchestrates
- * calls to xai-client.ts.
- */
+/** Verification orchestrator — routes posts to tweet_lookup or corroboration by postType. */
 
 import {
   verifyTweet,
@@ -48,7 +42,6 @@ export async function verifyXPost(post: {
   handle: string;
   content: string;
 }): Promise<VerificationOutcome> {
-  // Check if X AI is configured
   if (!isXAIConfigured()) {
     return {
       status: 'UNVERIFIED',
@@ -59,7 +52,6 @@ export async function verifyXPost(post: {
 
   const { postType } = post;
 
-  // ANALYSIS posts don't need verification
   if (postType === 'ANALYSIS') {
     return {
       status: 'SKIPPED',
@@ -177,9 +169,6 @@ export async function verifyXPost(post: {
   };
 }
 
-/**
- * Check if verification should be skipped based on query param.
- */
 export function shouldSkipVerification(searchParams: URLSearchParams): boolean {
   return searchParams.get('skipVerification') === 'true';
 }

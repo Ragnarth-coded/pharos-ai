@@ -60,7 +60,6 @@ export function EconomicsContent() {
       setMarketData(map);
       setLastRefresh(Date.now());
     } catch (err) {
-      console.error('Market fetch error:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);

@@ -2,10 +2,10 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/shared/lib/utils';
 
-export interface TabItem<T extends string> {
+export type TabItem<T extends string> = {
   value: T;
   label: string;
-}
+};
 
 type IntelTabsProps<T extends string> = {
   value: T;

@@ -1,9 +1,4 @@
-/**
- * POST /api/v1/admin/{conflictId}/verify/post
- *
- * Verify a single X post against the X AI (Grok) API.
- * Checks if the tweet/content actually exists and matches.
- */
+/** Verify a single X post against the X AI API. */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/lib/db';
@@ -33,7 +28,6 @@ export async function POST(
     return err('SERVER_ERROR', 'XAI_API_KEY is not configured. Cannot verify posts.', 503);
   }
 
-  // Look up the post
   const post = await prisma.xPost.findFirst({
     where: { id: body.postId, conflictId },
   });
@@ -43,7 +37,6 @@ export async function POST(
 
   const previousStatus = post.verificationStatus;
 
-  // Run verification
   const outcome = await verifyXPost({
     tweetId: post.tweetId,
     postType: post.postType,
@@ -51,7 +44,6 @@ export async function POST(
     content: post.content,
   });
 
-  // Update the post with verification results
   await prisma.xPost.update({
     where: { id: post.id },
     data: {

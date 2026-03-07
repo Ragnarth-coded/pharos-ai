@@ -1,9 +1,4 @@
-/**
- * POST /api/v1/admin/{conflictId}/verify/search
- *
- * Discover real X posts about a topic/event using the X AI (Grok) API.
- * Returns discovered posts with pre-formatted payloads for creation.
- */
+/** Discover real X posts via Grok API; returns pre-formatted creation payloads. */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/server/lib/db';
@@ -44,7 +39,6 @@ export async function POST(
     maxResults,
   });
 
-  // Build suggested POST payloads for each discovered post
   const suggestedPosts = result.posts
     .filter(p => p.tweetId && p.handle && p.content)
     .map((p, i) => {

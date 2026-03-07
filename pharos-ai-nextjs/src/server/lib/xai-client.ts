@@ -1,11 +1,4 @@
-/**
- * xai-client.ts
- *
- * Thin wrapper around the X AI (Grok) Responses API.
- * Uses x_search and web_search tools to verify tweets and discover posts.
- *
- * Requires env: XAI_API_KEY
- */
+/** Wrapper around X AI (Grok) Responses API. Requires XAI_API_KEY env. */
 
 const XAI_BASE = 'https://api.x.ai/v1';
 const MODEL = 'grok-3-fast';
@@ -123,10 +116,7 @@ export type TweetVerificationResult = {
   grokResponse: string;
 };
 
-/**
- * Verify a tweet by its ID and expected content.
- * Uses x_search with the handle filter to find the specific tweet.
- */
+/** Uses x_search with handle filter to find and verify the tweet. */
 export async function verifyTweet(
   tweetId: string,
   expectedHandle: string,
@@ -168,7 +158,6 @@ Respond in this exact JSON format (no markdown, just raw JSON):
 
   // Parse Grok's response
   try {
-    // Try to extract JSON from the response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
@@ -182,11 +171,8 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         grokResponse: text,
       };
     }
-  } catch {
-    // JSON parsing failed — fall through
-  }
+  } catch { /* JSON parse failed */ }
 
-  // Fallback: could not parse structured response
   return {
     exists: false,
     contentMatch: 'not_found',
@@ -203,10 +189,7 @@ export type CorroborationResult = {
   grokResponse: string;
 };
 
-/**
- * Search for corroborating evidence for a non-tweet post.
- * Uses x_search and/or web_search depending on post type.
- */
+/** Uses x_search/web_search based on post type to find corroboration. */
 export async function corroboratePost(
   content: string,
   handle: string,
@@ -262,9 +245,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         grokResponse: text,
       };
     }
-  } catch {
-    // JSON parsing failed
-  }
+  } catch { /* JSON parse failed */ }
 
   return {
     found: false,
@@ -290,10 +271,7 @@ export type SearchResult = {
   grokResponse: string;
 };
 
-/**
- * Search X for real posts about a topic/event.
- * Returns discovered posts with citations for creating verified signals.
- */
+/** Returns discovered posts with citations for verified signal creation. */
 export async function searchXPosts(
   query: string,
   options: {
@@ -363,16 +341,11 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         grokResponse: text,
       };
     }
-  } catch {
-    // JSON parsing failed
-  }
+  } catch { /* JSON parse failed */ }
 
   return { posts: [], citations, grokResponse: text };
 }
 
-/**
- * Check if the X AI API key is configured.
- */
 export function isXAIConfigured(): boolean {
   return !!process.env.XAI_API_KEY;
 }
