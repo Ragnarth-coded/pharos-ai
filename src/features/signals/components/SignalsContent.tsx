@@ -3,6 +3,8 @@
 import { useMemo,useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+
+import { track } from '@/shared/lib/analytics';
 import { ResizableHandle,ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -102,10 +104,10 @@ export function SignalsContent() {
       totalShown={filtered.length}
       totalAll={allPosts?.length ?? 0}
       lastUpdated={lastUpdated}
-      onSigChange={(s, v) => setSigFilter(p => ({ ...p, [s]: v }))}
-      onAcctChange={(a, v) => setAcctFilter(p => ({ ...p, [a]: v }))}
-      onPharosOnly={setPharosOnly}
-      onVerifiedOnly={setVerifiedOnly}
+      onSigChange={(s, v) => { setSigFilter(p => ({ ...p, [s]: v })); track('signals_filter_changed', { filter: 'significance', value: s, enabled: v }); }}
+      onAcctChange={(a, v) => { setAcctFilter(p => ({ ...p, [a]: v })); track('signals_filter_changed', { filter: 'account_type', value: a, enabled: v }); }}
+      onPharosOnly={v => { setPharosOnly(v); track('signals_filter_changed', { filter: 'pharos_only', enabled: v }); }}
+      onVerifiedOnly={v => { setVerifiedOnly(v); track('signals_filter_changed', { filter: 'verified_only', enabled: v }); }}
       currentDay={currentDay}
       onDayChange={(day) => { setDay(day); setShowAll(false); }}
       showAll={showAll}

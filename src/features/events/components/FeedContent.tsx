@@ -4,6 +4,8 @@ import { useMemo,useState } from 'react';
 
 import { ArrowLeft,FileText } from 'lucide-react';
 
+import { track } from '@/shared/lib/analytics';
+
 import { Button } from '@/components/ui/button';
 import { ResizableHandle,ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
@@ -127,7 +129,7 @@ export function FeedContent() {
               <EventLog
                 events={filtered}
                 selectedId={selId}
-                onSelect={id => { setSelId(id); if (id) setTab('report'); }}
+                onSelect={id => { setSelId(id); if (id) { setTab('report'); track('event_selected', { event_id: id }); } }}
                 compact={usePageScroll}
                 pageScroll={usePageScroll}
               />
@@ -161,13 +163,13 @@ export function FeedContent() {
         <EventLog
           events={filtered}
           selectedId={selId}
-          onSelect={id => { setSelId(id); if (id) setTab('report'); }}
+          onSelect={id => { setSelId(id); if (id) { setTab('report'); track('event_selected', { event_id: id }); } }}
         />
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel id="detail" defaultSize="55%" minSize="30%" className="flex flex-col overflow-hidden min-w-0">
         {selected
-          ? <EventDetail event={selected} tab={tab} onTabChange={setTab} />
+          ? <EventDetail event={selected} tab={tab} onTabChange={t => { setTab(t); track('event_tab_changed', { tab: t, event_id: selected.id }); }} />
           : <EmptyState icon={FileText} message="Select an event" />
         }
       </ResizablePanel>

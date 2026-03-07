@@ -4,6 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 
+import { track } from '@/shared/lib/analytics';
+
 import type { OverlayVisibility } from '@/features/map/components/MapVisibilityMenu';
 import type { SelectedItem } from '@/features/map/components/types';
 import { useMapFilters } from '@/features/map/hooks/use-map-filters';
@@ -69,6 +71,7 @@ export function useMapPage({ isMobile }: { isMobile: boolean }) {
     else if (id === 'zones') next = { type: 'zone', data: object as ThreatZone };
 
     dispatch(setSelectedItemAction(next));
+    if (next) track('map_object_clicked', { type: next.type });
     return next;
   }, [dispatch]);
 
@@ -93,12 +96,12 @@ export function useMapPage({ isMobile }: { isMobile: boolean }) {
     isLoading,
     // Actions (pre-bound for convenience)
     setViewState:    (vs: MapViewState) => { dispatch(setViewStateAction(vs)); },
-    activateStory:   (story: Parameters<typeof activateStoryAction>[0]) => dispatch(activateStoryAction(story)),
+    activateStory:   (story: Parameters<typeof activateStoryAction>[0]) => { track('map_story_activated', { story_id: story?.id }); return dispatch(activateStoryAction(story)); },
     setActiveStory:  (story: Parameters<typeof setActiveStoryAction>[0]) => dispatch(setActiveStoryAction(story)),
     setSelectedItem: (item: Parameters<typeof setSelectedItemAction>[0]) => dispatch(setSelectedItemAction(item)),
     toggleSidebar:   () => dispatch(toggleSidebarAction()),
     setSidebarOpen:  (open: boolean) => dispatch(setSidebarOpenAction(open)),
-    setMapStyle:     (style: Parameters<typeof setMapStyleAction>[0]) => dispatch(setMapStyleAction(style)),
+    setMapStyle:     (style: Parameters<typeof setMapStyleAction>[0]) => { track('map_style_changed', { style }); return dispatch(setMapStyleAction(style)); },
   };
 }
 

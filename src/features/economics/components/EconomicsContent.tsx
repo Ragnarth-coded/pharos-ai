@@ -4,6 +4,8 @@ import { useMemo,useState } from 'react';
 
 import Link from 'next/link';
 
+import { track } from '@/shared/lib/analytics';
+
 import { Button } from '@/components/ui/button';
 
 import { FocusedChart } from '@/features/economics/components/FocusedChart';
@@ -91,7 +93,7 @@ export function EconomicsContent() {
                 key={r.key}
                 variant="ghost"
                 size="sm"
-                onClick={() => setRangeIdx(i)}
+                onClick={() => { setRangeIdx(i); track('economics_range_changed', { range: r.label }); }}
                 className={`px-2 py-1 h-auto rounded text-[9px] mono font-bold tracking-wider shrink-0 ${
                   i === rangeIdx
                     ? 'bg-white/10 text-white border border-white/20'
@@ -204,7 +206,7 @@ export function EconomicsContent() {
               index={idx}
               data={marketData.get(idx.ticker)}
               loading={loading}
-              onFocus={() => setFocusedId(idx.id)}
+              onFocus={() => { setFocusedId(idx.id); track('economics_index_focused', { index_id: idx.id, ticker: idx.ticker }); }}
             />
           ))}
         </div>

@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 
 import { ArrowLeft,Users } from 'lucide-react';
 
+import { track } from '@/shared/lib/analytics';
+
 import { Button } from '@/components/ui/button';
 import { ResizableHandle,ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
@@ -68,7 +70,7 @@ export function ActorsContent() {
         ) : (
           <ActorList
             selectedId={selId}
-            onSelect={id => { setSelId(id); if (id) setTab('intel'); }}
+            onSelect={id => { setSelId(id); if (id) { setTab('intel'); track('actor_selected', { actor_id: id }); } }}
             currentDay={currentDay}
             onDayChange={setDay}
             compact={usePageScroll}
@@ -84,7 +86,7 @@ export function ActorsContent() {
       <ResizablePanel id="list" defaultSize="22%" minSize="15%" maxSize="40%" className="flex flex-col overflow-hidden min-w-[180px]">
         <ActorList
           selectedId={selId}
-          onSelect={id => { setSelId(id); if (id) setTab('intel'); }}
+          onSelect={id => { setSelId(id); if (id) { setTab('intel'); track('actor_selected', { actor_id: id }); } }}
           currentDay={currentDay}
           onDayChange={setDay}
         />
@@ -92,7 +94,7 @@ export function ActorsContent() {
       <ResizableHandle />
       <ResizablePanel id="dossier" defaultSize="78%" minSize="40%" className="flex flex-col overflow-hidden">
         {selected
-          ? <ActorDossier actor={selected} tab={tab} onTabChange={setTab} currentDay={currentDay} />
+          ? <ActorDossier actor={selected} tab={tab} onTabChange={t => { setTab(t); track('actor_tab_changed', { tab: t, actor_id: selected.id }); }} currentDay={currentDay} />
           : <EmptyState icon={Users} message="Select an actor" />
         }
       </ResizablePanel>

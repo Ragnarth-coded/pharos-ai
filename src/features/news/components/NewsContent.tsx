@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo,useRef, useState } from 'react';
 
 import Link from 'next/link';
 
+import { track } from '@/shared/lib/analytics';
+
 import { Button } from '@/components/ui/button';
 
 import { AllFeedsView } from '@/features/news/components/AllFeedsView';
@@ -127,7 +129,7 @@ export function NewsContent() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('conflict')}
+                onClick={() => { setViewMode('conflict'); track('news_view_changed', { mode: 'conflict' }); }}
                 className={`px-3 py-1 h-auto rounded text-[9px] mono font-bold tracking-wider ${
                   viewMode === 'conflict'
                     ? 'bg-[var(--danger-dim)] text-[var(--danger)] border border-[var(--danger-bd)]'
@@ -139,7 +141,7 @@ export function NewsContent() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('all')}
+                onClick={() => { setViewMode('all'); track('news_view_changed', { mode: 'all' }); }}
                 className={`px-3 py-1 h-auto rounded text-[9px] mono font-bold tracking-wider ${
                   viewMode === 'all'
                     ? 'bg-white/10 text-white border border-white/20'
@@ -179,7 +181,7 @@ export function NewsContent() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => fetchFeeds()}
+            onClick={() => { fetchFeeds(); track('news_manual_refresh'); }}
             disabled={refreshing}
             className="flex items-center gap-2 h-auto px-2 py-1 text-[9px] mono text-[var(--t4)] hover:text-[var(--t2)] disabled:opacity-40"
           >

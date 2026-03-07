@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from '@/shared/components/layout/Header';
 import { ViewportHeightSync } from '@/shared/components/layout/ViewportHeightSync';
 
+import { PostHogPageView } from '@/shared/lib/posthog-provider';
 import { QueryProvider } from '@/shared/lib/query-provider';
 import { ReduxProvider } from '@/shared/state/redux-provider';
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <PostHogPageView />
         <ReduxProvider>
           <QueryProvider>
             <ViewportHeightSync />

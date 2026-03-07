@@ -18,6 +18,12 @@ export function getRequiredEnv(name: string): string {
 export const publicConflictId: string =
   process.env.NEXT_PUBLIC_CONFLICT_ID ?? 'iran-2026';
 
+export const publicPosthogKey: string | undefined =
+  process.env.NEXT_PUBLIC_POSTHOG_KEY ?? process.env.NEXT_PUBLIC_POSTHOG_TOKEN;
+
+export const publicPosthogHost: string =
+  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com';
+
 /* ── server-only env vars ──────────────────────────────────────── */
 
 // Lazy getter — only evaluated when called on the server.
