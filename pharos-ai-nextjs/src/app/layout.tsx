@@ -1,5 +1,6 @@
 import './globals.css';
 
+import { Analytics } from '@vercel/analytics/next';
 import { Header } from '@/components/layout/Header';
 import { ViewportHeightSync } from '@/components/layout/ViewportHeightSync';
 import { Toaster } from '@/components/ui/sonner';
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Toaster theme="dark" position="bottom-right" />
           </QueryProvider>
         </ReduxProvider>
+        <Analytics />
       </body>
     </html>
   );
