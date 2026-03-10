@@ -1,5 +1,3 @@
-import type { BrowseStoryEvent } from '@/types/domain';
-
 import { StoryCard } from './StoryCard';
 
 type StoryItem = {
@@ -10,7 +8,7 @@ type StoryItem = {
   narrative: string;
   keyFacts: string[];
   timestamp: string;
-  events: BrowseStoryEvent[];
+  eventCount: number;
 };
 
 type Props = {
@@ -25,17 +23,7 @@ export function StoryList({ stories }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {stories.map((story) => (
-        <StoryCard
-          key={story.id}
-          id={story.id}
-          title={story.title}
-          tagline={story.tagline}
-          category={story.category}
-          narrative={story.narrative}
-          keyFacts={story.keyFacts}
-          timestamp={story.timestamp}
-          eventCount={story.events.length}
-        />
+        <StoryCard key={story.id} {...story} />
       ))}
     </div>
   );
