@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { BROWSE_POLL } from '@/features/browse/constants';
 import { useEvents } from '@/features/events/queries';
@@ -12,6 +13,7 @@ import { timeAgo } from '@/shared/lib/format';
 const HOURS_32 = 32 * 60 * 60 * 1000;
 
 export function CriticalTimeline() {
+  const pathname = usePathname();
   const { data: events, dataUpdatedAt } = useEvents(
     undefined,
     { severity: 'CRITICAL' },
@@ -44,9 +46,15 @@ export function CriticalTimeline() {
           {items.map((event, i) => {
             const isFirst = i === 0;
             const isLast = i === items.length - 1;
+            const isActive = pathname === `/browse/events/${event.id}`;
 
             return (
-              <li key={event.id} className="relative pl-5 pb-5 last:pb-0">
+              <li
+                key={event.id}
+                className={`relative rounded-sm pl-5 pb-5 transition-colors last:pb-0 ${
+                  isActive ? 'bg-[var(--bg-sel)]' : 'hover:bg-[var(--bg-2)]'
+                }`}
+              >
                 {!isLast && (
                   <span
                     className="absolute left-[3.5px] top-[10px] bottom-0 w-px bg-[var(--danger-bd)]"
@@ -70,7 +78,13 @@ export function CriticalTimeline() {
                   <time className="mono text-[10px] text-[var(--t4)]">
                     {timeAgo(event.timestamp)}
                   </time>
-                  <p className="text-[11px] text-[var(--t2)] line-clamp-2 group-hover:text-[var(--t1)] transition-colors">
+                  <p
+                    className={`text-[11px] line-clamp-2 transition-colors ${
+                      isActive
+                        ? 'text-[var(--t1)]'
+                        : 'text-[var(--t2)] group-hover:text-[var(--t1)]'
+                    }`}
+                  >
                     {event.title}
                   </p>
                 </Link>

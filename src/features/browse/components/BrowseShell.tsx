@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -29,17 +29,25 @@ export function BrowseShell({ children }: Props) {
   const isMobile = useIsMobile(768);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const hasHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const isLanding = pathname === '/browse';
   const isDetailPage = pathname.split('/').filter(Boolean).length >= 3;
 
   const handleNavigate = useCallback(() => setOpen(false), []);
 
-  const hamburgerButton = isMobile && !isLanding ? (
+  const showDesktopSidebar = hasHydrated && !isMobile && !isLanding;
+  const showMobileSheet = hasHydrated && isMobile;
+
+  const hamburgerButton = showMobileSheet ? (
     <Button
       variant="ghost"
       size="icon-xs"
-      className="-ml-1"
+      className="-ml-1 text-[var(--t1)] hover:bg-[var(--bg-3)] hover:text-[var(--t1)]"
       onClick={() => setOpen(true)}
       aria-label="Open navigation"
     >
@@ -52,18 +60,18 @@ export function BrowseShell({ children }: Props) {
       <BrowseNav hamburgerSlot={hamburgerButton} />
 
       <div className="flex flex-1 min-h-0">
-        {!isMobile && !isLanding && <BrowseSidebar />}
+        {showDesktopSidebar && <BrowseSidebar />}
 
-        {isMobile && (
+        {showMobileSheet && (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent
               side="left"
               showCloseButton={false}
               data-theme="auto"
-              className="w-56 p-0 bg-[var(--bg-1)]"
+              className="w-56 gap-0 overflow-hidden p-0 bg-[var(--bg-1)]"
             >
               <SheetTitle className="sr-only">Navigation</SheetTitle>
-              <BrowseSidebar onNavigate={handleNavigate} />
+              <BrowseSidebar onNavigate={handleNavigate} mobileSheet />
             </SheetContent>
           </Sheet>
         )}
@@ -73,7 +81,7 @@ export function BrowseShell({ children }: Props) {
           {children}
           {isLanding && <BrowseFooter />}
         </main>
-        {!isMobile && !isLanding && <CriticalTimeline />}
+        {showDesktopSidebar && <CriticalTimeline />}
       </div>
     </>
   );

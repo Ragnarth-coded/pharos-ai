@@ -52,7 +52,7 @@ export function BrowseNav({ hamburgerSlot }: Props) {
           <Button
             size="xs"
             asChild
-            className="bg-[var(--blue)] text-[var(--bg-app)] font-bold hover:bg-[var(--blue-l)]"
+            className="hidden md:inline-flex bg-[var(--blue)] text-[var(--bg-app)] font-bold hover:bg-[var(--blue-l)]"
           >
             <Link href="/dashboard">Dashboard &rarr;</Link>
           </Button>

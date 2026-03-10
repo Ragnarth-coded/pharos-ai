@@ -6,6 +6,12 @@ type Props = {
   sources: Source[];
 };
 
+function formatReliability(value: number): number {
+  const normalized = value <= 1 ? value * 100 : value;
+
+  return Math.max(0, Math.min(100, Math.round(normalized)));
+}
+
 export function SourceList({ sources }: Props) {
   if (sources.length === 0) return null;
 
@@ -29,7 +35,7 @@ export function SourceList({ sources }: Props) {
               <span className="text-xs text-[var(--t2)]">{s.name}</span>
             )}
             <span className="mono text-[10px] text-[var(--t4)] ml-auto">
-              {Math.round(s.reliability * 100)}% reliability
+              {formatReliability(s.reliability)}% reliability
             </span>
           </div>
         ))}
