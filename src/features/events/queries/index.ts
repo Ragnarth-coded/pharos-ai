@@ -8,7 +8,11 @@ import type { EventFilters,IntelEvent } from '@/types/domain';
 
 const CONFLICT_ID = publicConflictId;
 
-export function useEvents(id: string = CONFLICT_ID, filters?: EventFilters) {
+type UseEventsOptions = {
+  refetchInterval?: number | false;
+};
+
+export function useEvents(id: string = CONFLICT_ID, filters?: EventFilters, options?: UseEventsOptions) {
   return useQuery({
     queryKey: queryKeys.events.list(id, filters),
     queryFn: () =>
@@ -22,7 +26,7 @@ export function useEvents(id: string = CONFLICT_ID, filters?: EventFilters) {
         }),
       ),
     staleTime: STALE.SHORT,
-    refetchInterval: REFETCH.FAST,
+    refetchInterval: options?.refetchInterval ?? REFETCH.FAST,
   });
 }
 
