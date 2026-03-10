@@ -16,7 +16,7 @@ export default async function BrowseStoriesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <BrowseBreadcrumb crumbs={[{ label: 'Stories' }]} />
+      <BrowseBreadcrumb crumbs={[{ label: 'Stories' }]} autoRefresh />
 
       <header className="mt-6 mb-8">
         <p className="label mb-2">Conflict narratives</p>

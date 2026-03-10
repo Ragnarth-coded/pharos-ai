@@ -100,8 +100,10 @@ export function BrowseSidebar({ onNavigate }: SidebarProps = {}) {
   );
 }
 
+const BROWSE_POLL = 4 * 60_000; // align with browse auto-refresh cadence
+
 function EventSidebarList({ currentPath, onNavigate, sevFilter }: { currentPath: string; onNavigate?: () => void; sevFilter: Set<Severity> }) {
-  const { data: events, isLoading } = useEvents();
+  const { data: events, isLoading } = useEvents(undefined, undefined, { refetchInterval: BROWSE_POLL });
 
   if (isLoading) {
     return (

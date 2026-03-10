@@ -9,9 +9,14 @@ import { useEvents } from '@/features/events/queries';
 import { timeAgo } from '@/shared/lib/format';
 
 const HOURS_32 = 32 * 60 * 60 * 1000;
+const BROWSE_POLL = 4 * 60_000; // align with browse auto-refresh cadence
 
 export function CriticalTimeline() {
-  const { data: events, dataUpdatedAt } = useEvents(undefined, { severity: 'CRITICAL' });
+  const { data: events, dataUpdatedAt } = useEvents(
+    undefined,
+    { severity: 'CRITICAL' },
+    { refetchInterval: BROWSE_POLL },
+  );
 
   const all = events ?? [];
 

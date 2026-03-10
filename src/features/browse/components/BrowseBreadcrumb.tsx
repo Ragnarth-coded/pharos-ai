@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 
+import { BrowseRefreshControls } from './BrowseRefreshControls';
+
 type Crumb = {
   label: string;
   href?: string;
@@ -17,41 +19,47 @@ type Crumb = {
 
 type Props = {
   crumbs: Crumb[];
+  /** When true, mounts auto-refresh polling and shows a live status indicator. */
+  autoRefresh?: boolean;
 };
 
-export function BrowseBreadcrumb({ crumbs }: Props) {
+export function BrowseBreadcrumb({ crumbs, autoRefresh }: Props) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <Breadcrumb>
-        <BreadcrumbList className="text-xs [--muted-foreground:var(--t3)] [--foreground:var(--t1)]">
-          {crumbs.map((crumb, i) => {
-            const isLast = i === crumbs.length - 1;
-            return (
-              <span key={i} className="contents">
-                <BreadcrumbItem>
-                  {isLast ? (
-                    <BreadcrumbPage className="text-[var(--t1)]">
-                      {crumb.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link
-                        href={crumb.href!}
-                        className="no-underline text-[var(--t3)] hover:text-[var(--t1)]"
-                      >
+      <div className="flex items-center gap-4">
+        <Breadcrumb>
+          <BreadcrumbList className="text-xs [--muted-foreground:var(--t3)] [--foreground:var(--t1)]">
+            {crumbs.map((crumb, i) => {
+              const isLast = i === crumbs.length - 1;
+              return (
+                <span key={i} className="contents">
+                  <BreadcrumbItem>
+                    {isLast ? (
+                      <BreadcrumbPage className="text-[var(--t1)]">
                         {crumb.label}
-                      </Link>
-                    </BreadcrumbLink>
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link
+                          href={crumb.href!}
+                          className="no-underline text-[var(--t3)] hover:text-[var(--t1)]"
+                        >
+                          {crumb.label}
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && (
+                    <BreadcrumbSeparator className="text-[var(--t4)]" />
                   )}
-                </BreadcrumbItem>
-                {!isLast && (
-                  <BreadcrumbSeparator className="text-[var(--t4)]" />
-                )}
-              </span>
-            );
-          })}
-        </BreadcrumbList>
-      </Breadcrumb>
+                </span>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        {autoRefresh && <BrowseRefreshControls />}
+      </div>
 
       <Button
         variant="outline"
