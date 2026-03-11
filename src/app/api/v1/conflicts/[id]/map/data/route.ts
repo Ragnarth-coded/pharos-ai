@@ -104,9 +104,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const heatPoints = features
     .filter(f => f.featureType === 'HEAT_POINT')
     .map(f => {
-      const geo = f.geometry as Geo;
-      const props = f.properties as Props;
-      return { position: geo.position, weight: props.weight };
+        const geo = f.geometry as Geo;
+        const props = f.properties as Props;
+        return {
+          id: f.id, sourceEventId: f.sourceEventId, actor: f.actor, priority: f.priority,
+          position: geo.position, weight: props.weight,
+        };
     });
 
   // Build actorMeta keyed by mapKey

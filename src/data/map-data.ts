@@ -83,6 +83,10 @@ export type ThreatZone = {
 };
 
 export type HeatPoint = {
-  position: [number, number];
-  weight:   number;
+  id:             string;
+  sourceEventId?: string | null;
+  actor:          string;
+  priority:       string;
+  position:       [number, number];
+  weight:         number;
 };

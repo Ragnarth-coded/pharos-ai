@@ -68,13 +68,13 @@ export async function POST(
   if (existing) return err('DUPLICATE', `Map story ${body.id} already exists`, 409);
 
   const story = await prisma.mapStory.create({
-      data: {
-        id: body.id,
-        conflictId,
-        primaryEventId: body.primaryEventId ?? null,
-        sourceEventIds: body.sourceEventIds ?? [],
-        title: body.title,
-        tagline: body.tagline,
+    data: {
+      id: body.id,
+      conflictId,
+      primaryEventId: body.primaryEventId ?? null,
+      sourceEventIds: body.sourceEventIds ?? [],
+      title: body.title,
+      tagline: body.tagline,
       iconName: body.iconName,
       category: body.category,
       narrative: body.narrative,
