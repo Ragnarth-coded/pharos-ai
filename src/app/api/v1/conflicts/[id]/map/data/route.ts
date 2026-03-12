@@ -52,6 +52,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   type Geo = Record<string, unknown>;
   type Props = Record<string, unknown>;
 
+  const KINETIC_DEFAULT = 'COMPLETE';
+  const INSTALLATION_DEFAULT = 'ACTIVE';
+
+  /** Normalize status: uppercase + default for null/unknown. */
+  function normStatus(raw: string | null, featureType: string): string {
+    if (!raw) return featureType === 'STRIKE_ARC' || featureType === 'MISSILE_TRACK' ? KINETIC_DEFAULT : INSTALLATION_DEFAULT;
+    const upper = raw.toUpperCase();
+    const valid = ['COMPLETE', 'INTERCEPTED', 'IMPACTED', 'ACTIVE', 'DEGRADED', 'STRUCK', 'DAMAGED', 'DESTROYED'];
+    return valid.includes(upper) ? upper : (featureType === 'STRIKE_ARC' || featureType === 'MISSILE_TRACK' ? KINETIC_DEFAULT : INSTALLATION_DEFAULT);
+  }
+
   const strikes = features
     .filter(f => f.featureType === 'STRIKE_ARC')
     .map(f => {
@@ -59,7 +70,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const props = f.properties as Props;
         return {
           id: f.id, sourceEventId: f.sourceEventId, actor: f.actor, priority: f.priority, category: f.category, type: f.type,
-          status: f.status, timestamp: f.timestamp?.toISOString() ?? '',
+          status: normStatus(f.status, f.featureType), timestamp: f.timestamp?.toISOString() ?? '',
           from: geo.from, to: geo.to, label: props.label, severity: props.severity,
         };
     });
@@ -71,7 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const props = f.properties as Props;
         return {
           id: f.id, sourceEventId: f.sourceEventId, actor: f.actor, priority: f.priority, category: f.category, type: f.type,
-          status: f.status, timestamp: f.timestamp?.toISOString() ?? '',
+          status: normStatus(f.status, f.featureType), timestamp: f.timestamp?.toISOString() ?? '',
           from: geo.from, to: geo.to, label: props.label, severity: props.severity,
         };
     });
@@ -83,7 +94,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const props = f.properties as Props;
         return {
           id: f.id, sourceEventId: f.sourceEventId, actor: f.actor, priority: f.priority, category: f.category, type: f.type,
-          status: f.status, timestamp: f.timestamp?.toISOString() ?? '',
+          status: normStatus(f.status, f.featureType), timestamp: f.timestamp?.toISOString() ?? '',
           position: geo.position, name: props.name, description: props.description,
         };
     });
@@ -95,7 +106,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const props = f.properties as Props;
         return {
           id: f.id, sourceEventId: f.sourceEventId, actor: f.actor, priority: f.priority, category: f.category, type: f.type,
-          status: f.status, timestamp: f.timestamp?.toISOString() ?? '',
+          status: normStatus(f.status, f.featureType), timestamp: f.timestamp?.toISOString() ?? '',
           position: geo.position, name: props.name, description: props.description,
         };
     });
