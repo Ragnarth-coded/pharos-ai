@@ -37,6 +37,23 @@ type CasualtySummaryRow = {
   injured: number;
 };
 
+export function emptyCasualties() {
+  return {
+    us: { kia: 0, wounded: 0, civilians: 0 },
+    israel: { kia: 0, wounded: 0, civilians: 0, injured: 0 },
+    iran: { killed: 0, injured: 0 },
+    lebanon: { killed: 0, injured: 0 },
+    regional: {} as Record<string, { killed: number; injured: number }>,
+  };
+}
+
+export function resolveCasualties(
+  rows: CasualtySummaryRow[],
+  fallback = emptyCasualties(),
+) {
+  return rows.length > 0 ? reassembleCasualties(rows) : fallback;
+}
+
 /**
  * Reassemble flat CasualtySummary rows into the nested domain.ts format:
  * { us: { kia, wounded, civilians }, israel: { kia, wounded, civilians, injured },
@@ -60,6 +77,7 @@ export function reassembleCasualties(rows: CasualtySummaryRow[]) {
   }
 
   return {
+    ...emptyCasualties(),
     us: { kia: us?.killed ?? 0, wounded: us?.wounded ?? 0, civilians: us?.civilians ?? 0 },
     israel: { kia: israel?.killed ?? 0, wounded: israel?.wounded ?? 0, civilians: israel?.civilians ?? 0, injured: israel?.injured ?? 0 },
     iran: { killed: iran?.killed ?? 0, injured: iran?.injured ?? 0 },

@@ -53,8 +53,23 @@ export const getBrief = cache(async (day: string) => {
 
   if (!row) return null;
 
+  const previousSnapshot = row.casualties.length === 0
+    ? await prisma.conflictDaySnapshot.findFirst({
+      where: {
+        conflictId: CONFLICT_ID,
+        day: { lt: date },
+        casualties: { some: {} },
+      },
+      orderBy: { day: 'desc' },
+      select: {
+        casualties: true,
+      },
+    })
+    : null;
+
   return {
     ...row,
+    casualties: row.casualties.length > 0 ? row.casualties : (previousSnapshot?.casualties ?? []),
     day: fmtDate(row.day.toISOString()),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),

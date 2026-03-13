@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-import { err, ok, reassembleCasualties } from '@/server/lib/api-utils';
+import { emptyCasualties, err, ok, resolveCasualties } from '@/server/lib/api-utils';
 import { prisma } from '@/server/lib/db';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -44,19 +44,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (snapshots.length === 0) return err('NOT_FOUND', `No day snapshots for conflict ${id}`, 404);
 
-  const data = snapshots.map(s => ({
-    day: s.day.toISOString().slice(0, 10),
-    dayLabel: s.dayLabel,
-    summary: s.summary,
-    keyFacts: s.keyFacts,
-    escalation: s.escalation,
-    casualties: reassembleCasualties(s.casualties),
-    economicImpact: {
-      chips: s.economicChips.map(c => ({ label: c.label, val: c.val, sub: c.sub, color: c.color })),
-      narrative: s.economicNarrative,
-    },
-    scenarios: s.scenarios.map(sc => ({ label: sc.label, subtitle: sc.subtitle, color: sc.color, prob: sc.prob, body: sc.body })),
-  }));
+  let lastKnownCasualties = emptyCasualties();
+  const data = snapshots.map((snapshot) => {
+    lastKnownCasualties = resolveCasualties(snapshot.casualties, lastKnownCasualties);
+
+    return {
+      day: snapshot.day.toISOString().slice(0, 10),
+      dayLabel: snapshot.dayLabel,
+      summary: snapshot.summary,
+      keyFacts: snapshot.keyFacts,
+      escalation: snapshot.escalation,
+      casualties: lastKnownCasualties,
+      economicImpact: {
+        chips: snapshot.economicChips.map((chip) => ({ label: chip.label, val: chip.val, sub: chip.sub, color: chip.color })),
+        narrative: snapshot.economicNarrative,
+      },
+      scenarios: snapshot.scenarios.map((scenario) => ({ label: scenario.label, subtitle: scenario.subtitle, color: scenario.color, prob: scenario.prob, body: scenario.body })),
+    };
+  });
 
   return ok(data, {
     headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },

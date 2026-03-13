@@ -56,49 +56,51 @@ export function EventReportContent({ event, compact = false, pageScroll = false 
         </div>
       </div>
 
-      <div className="mb-[22px]">
-        <SectionDivider label={`SOURCES (${event.sources.length})`} />
-        <div className="flex flex-col gap-1">
-          {event.sources.map((src, i) => (
-            <div key={i} className="flex items-center gap-2.5 px-2.5 py-1.5 border border-[var(--bd)]" style={src.url ? { borderColor: 'color-mix(in srgb, var(--blue) 30%, var(--bd))' } : undefined}>
-              <span
-                className="text-[8px] font-bold px-[5px] py-px shrink-0"
-                style={{ background: TIER_C[src.tier] + '22', color: TIER_C[src.tier] }}
-              >
-                {TIER_L[src.tier]}
-              </span>
-              {src.url ? (
-                <a
-                  href={src.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] flex-1 font-medium hover:underline"
-                  style={{ color: 'var(--blue-l)', textDecoration: 'none' }}
+      {event.sources.length > 0 && (
+        <div className="mb-[22px]">
+          <SectionDivider label={`SOURCES (${event.sources.length})`} />
+          <div className="flex flex-col gap-1">
+            {event.sources.map((src, i) => (
+              <div key={i} className="flex items-center gap-2.5 px-2.5 py-1.5 border border-[var(--bd)]" style={src.url ? { borderColor: 'color-mix(in srgb, var(--blue) 30%, var(--bd))' } : undefined}>
+                <span
+                  className="text-[8px] font-bold px-[5px] py-px shrink-0"
+                  style={{ background: TIER_C[src.tier] + '22', color: TIER_C[src.tier] }}
                 >
-                  {src.name} ↗
-                </a>
-              ) : (
-                <span className="text-[11px] text-[var(--t1)] flex-1">{src.name}</span>
-              )}
-              <div className="flex items-center gap-1.5">
-                <div className="w-[50px] h-[3px] bg-[var(--bd)]">
-                  <div
-                    className="h-full"
-                    style={{
-                      width: `${src.reliability}%`,
-                      background: src.reliability > 90 ? 'var(--success)'
-                        : src.reliability > 75 ? 'var(--warning)' : 'var(--danger)',
-                    }}
-                  />
-                </div>
-                <span className="mono text-[9px] text-[var(--t3)] min-w-[26px]">
-                  {src.reliability}%
+                  {TIER_L[src.tier]}
                 </span>
+                {src.url ? (
+                  <a
+                    href={src.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] flex-1 font-medium hover:underline"
+                    style={{ color: 'var(--blue-l)', textDecoration: 'none' }}
+                  >
+                    {src.name} ↗
+                  </a>
+                ) : (
+                  <span className="text-[11px] text-[var(--t1)] flex-1">{src.name}</span>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <div className="w-[50px] h-[3px] bg-[var(--bd)]">
+                    <div
+                      className="h-full"
+                      style={{
+                        width: `${src.reliability}%`,
+                        background: src.reliability > 90 ? 'var(--success)'
+                          : src.reliability > 75 ? 'var(--warning)' : 'var(--danger)',
+                      }}
+                    />
+                  </div>
+                  <span className="mono text-[9px] text-[var(--t3)] min-w-[26px]">
+                    {src.reliability}%
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {event.actorResponses.length > 0 && (
         <div className="mb-[22px]">
