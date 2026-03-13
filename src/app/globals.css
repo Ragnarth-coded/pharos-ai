@@ -195,7 +195,13 @@
   /* Layout */
   .layout-fill { display: flex; flex: 1 1 0%; min-height: 0; overflow: hidden; }
   .layout-col  { display: flex; flex-direction: column; }
-  .app-shell {
+  .dashboard-shell {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow: visible;
+  }
+  .browse-shell {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
@@ -206,13 +212,17 @@
   .safe-pb { padding-bottom: var(--safe-bottom); }
 
   @supports (min-height: 100dvh) {
-    .app-shell {
+    .dashboard-shell {
+      min-height: 100dvh;
+    }
+
+    .browse-shell {
       min-height: 100dvh;
     }
   }
 
   @media (min-width: 768px) {
-    .app-shell {
+    .dashboard-shell {
       min-height: 0;
       height: var(--app-height);
       overflow: hidden;

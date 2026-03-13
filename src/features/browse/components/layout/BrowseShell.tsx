@@ -59,7 +59,7 @@ export function BrowseShell({ children }: Props) {
     <>
       <BrowseNav hamburgerSlot={hamburgerButton} />
 
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0">
         {showDesktopSidebar && <BrowseSidebar />}
 
         {showMobileSheet && (
@@ -76,7 +76,7 @@ export function BrowseShell({ children }: Props) {
           </Sheet>
         )}
 
-        <main className="flex-1 min-h-0 overflow-y-auto">
+        <main className="flex-1 min-h-0">
           {isDetailPage && <BrowseArticleBanner />}
           {children}
           {isLanding && <BrowseFooter />}

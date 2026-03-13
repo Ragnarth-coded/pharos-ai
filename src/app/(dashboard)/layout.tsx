@@ -5,7 +5,7 @@ export default function DashboardShellLayout({ children }: { children: React.Rea
   return (
     <>
       <ViewportHeightSync />
-      <div className="app-shell bg-[var(--bg-app)]">
+      <div className="dashboard-shell bg-[var(--bg-app)]">
         <Header />
         <div className="flex flex-1 min-h-0 pb-[var(--safe-bottom)] md:overflow-hidden">
           {children}

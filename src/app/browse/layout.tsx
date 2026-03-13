@@ -5,10 +5,7 @@ export default function BrowseLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <ViewportHeightSync />
-      <div
-        data-theme="auto"
-        className="app-shell bg-[var(--bg-app)]"
-      >
+      <div data-theme="auto" className="browse-shell bg-[var(--bg-app)]">
         <BrowseShell>{children}</BrowseShell>
       </div>
     </>
