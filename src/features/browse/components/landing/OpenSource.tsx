@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 
-import { GITHUB_URL } from '@/features/browse/constants';
+import { GITHUB_URL } from '@/data/external-links';
 
 const TECH_STACK = [
   'Next.js App Router',

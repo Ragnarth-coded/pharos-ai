@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { GITHUB_URL } from '@/features/browse/constants';
+import { GITHUB_URL } from '@/data/external-links';
 
 export function BrowseFooter() {
   return (

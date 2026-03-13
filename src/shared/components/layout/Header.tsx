@@ -1,8 +1,8 @@
 'use client';
-import Link           from 'next/link';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Github, MoreHorizontal } from 'lucide-react';
+import { Github, Heart, MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,10 +16,13 @@ import { useBootstrap } from '@/features/dashboard/queries';
 import { useConflict } from '@/features/dashboard/queries/conflicts';
 import { useEvents } from '@/features/events/queries';
 
-import { fmtDate }    from '@/shared/lib/format';
+import { fmtDate } from '@/shared/lib/format';
+import { useHorizontalWheelScroll } from '@/shared/hooks/use-horizontal-wheel-scroll';
 import { useIsLandscapePhone } from '@/shared/hooks/use-is-landscape-phone';
 import { useIsMobile } from '@/shared/hooks/use-is-mobile';
 import { useLandscapeHeaderVisibility } from '@/shared/hooks/use-landscape-header-visibility';
+
+import { GITHUB_URL, KOFI_URL } from '@/data/external-links';
 
 const NAV = [
   { label: 'OVERVIEW',    href: '/dashboard'              },
@@ -41,6 +44,7 @@ export function Header() {
   const isLandscapeNonMap = isLandscapePhone && !path.startsWith('/dashboard/map');
   const landscapeAutoHideEnabled = isLandscapeNonMap && path !== '/dashboard' && path !== '/dashboard/data';
   const showLandscapeHeader = useLandscapeHeaderVisibility(landscapeAutoHideEnabled, path);
+  const desktopNavRef = useHorizontalWheelScroll<HTMLElement>();
 
   if (isLandscapeNonMap && !showLandscapeHeader) return null;
 
@@ -76,7 +80,28 @@ export function Header() {
               <span className="mono text-xs font-bold text-[var(--t1)] tracking-[0.14em]">PHAROS</span>
               <span className="mono text-[8px] text-[var(--warning)] shrink-0">{latestLabel}</span>
             </Link>
-            <span className="mono text-[8px] text-[var(--t4)] truncate">{displayDate} · UTC</span>
+            <div className="flex items-center gap-2 min-w-0 shrink-0">
+              <span className="mono text-[8px] text-[var(--t4)] truncate">{displayDate} · UTC</span>
+              <Button
+                variant="ghost"
+                asChild
+                className="h-6 shrink-0 rounded border border-[var(--blue)] bg-[var(--blue-dim)] px-1.5 text-[var(--blue-l)] hover:bg-[var(--blue)] hover:text-[var(--t1)]"
+              >
+                <a href={KOFI_URL} target="_blank" rel="noopener noreferrer" aria-label="Support Pharos server costs on Ko-fi">
+                  <Heart size={11} fill="currentColor" strokeWidth={0} />
+                </a>
+              </Button>
+              <Button
+                variant="ghost"
+                asChild
+                className="h-6 shrink-0 gap-1 rounded bg-[var(--t1)] pl-2 pr-1.5 text-[var(--bg-app)] hover:bg-[var(--t2)] hover:text-[var(--bg-app)]"
+              >
+                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="View Pharos on GitHub">
+                  <Github size={12} fill="currentColor" strokeWidth={0} />
+                  <span className="mono text-[9px] font-bold tracking-[0.04em] text-[var(--bg-app)]">STAR</span>
+                </a>
+              </Button>
+            </div>
           </div>
           <nav
             className={`${isLandscapeNonMap ? 'h-8' : 'h-9'} flex items-stretch overflow-x-auto touch-scroll hide-scrollbar`}
@@ -139,6 +164,7 @@ export function Header() {
 
           {/* ── Nav tabs ── */}
           <nav
+            ref={desktopNavRef}
             className="flex items-stretch h-full flex-1 overflow-x-auto touch-scroll hide-scrollbar"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
@@ -175,16 +201,32 @@ export function Header() {
               {displayDate} · UTC
             </span>
 
-            {/* GitHub link */}
-            <a
-              href="https://github.com/Juliusolsson05/pharos-ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--t1)] text-[var(--bg-app)] hover:bg-[var(--t2)] transition-colors"
+            <Button
+              variant="ghost"
+              asChild
+              className="h-auto rounded border border-[var(--blue)] bg-[var(--blue-dim)] px-2 py-1 text-[var(--blue-l)] hover:bg-[var(--blue)] hover:text-[var(--t1)]"
             >
-              <Github size={13} fill="currentColor" strokeWidth={0} />
-              <span className="mono text-[10px] font-bold tracking-[0.04em] text-[var(--bg-app)]">STAR</span>
-            </a>
+              <a
+                href={KOFI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Help cover hosting and data infrastructure"
+              >
+                <Heart size={12} fill="currentColor" strokeWidth={0} />
+                <span className="mono text-[10px] font-bold tracking-[0.04em]">SUPPORT SERVER COSTS</span>
+              </a>
+            </Button>
+
+            <Button
+              variant="ghost"
+              asChild
+              className="h-auto rounded bg-[var(--t1)] px-2 py-1 text-[var(--bg-app)] hover:bg-[var(--t2)] hover:text-[var(--bg-app)]"
+            >
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+                <Github size={13} fill="currentColor" strokeWidth={0} />
+                <span className="mono text-[10px] font-bold tracking-[0.04em] text-[var(--bg-app)]">STAR</span>
+              </a>
+            </Button>
           </div>
         </div>
       )}

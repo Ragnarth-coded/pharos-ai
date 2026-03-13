@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Github } from 'lucide-react';
+import { Github, Heart } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import { BROWSE_SECTIONS, GITHUB_URL } from '@/features/browse/constants';
+import { BROWSE_SECTIONS } from '@/features/browse/constants';
+
+import { GITHUB_URL, KOFI_URL } from '@/data/external-links';
 
 type Props = {
   hamburgerSlot?: React.ReactNode;
@@ -67,15 +69,33 @@ export function BrowseNav({ hamburgerSlot }: Props) {
             <Link href="/dashboard">Dashboard &rarr;</Link>
           </Button>
 
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--t1)] text-[var(--bg-app)] hover:bg-[var(--t2)] transition-colors"
+          <Button
+            variant="ghost"
+            asChild
+            className="h-auto rounded border border-[var(--blue)] bg-[var(--blue-dim)] px-1.5 py-1 text-[var(--blue-l)] hover:bg-[var(--blue)] hover:text-[var(--t1)] md:px-2"
           >
-            <Github size={13} fill="currentColor" strokeWidth={0} />
-            <span className="mono text-[10px] font-bold tracking-[0.04em] text-[var(--bg-app)]">STAR</span>
-          </a>
+            <a
+              href={KOFI_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Help cover hosting and data infrastructure"
+              aria-label="Support Pharos server costs on Ko-fi"
+            >
+              <Heart size={12} fill="currentColor" strokeWidth={0} />
+              <span className="mono hidden text-[10px] font-bold tracking-[0.04em] md:inline">SUPPORT</span>
+            </a>
+          </Button>
+
+          <Button
+            variant="ghost"
+            asChild
+            className="h-auto rounded bg-[var(--t1)] px-2 py-1 text-[var(--bg-app)] hover:bg-[var(--t2)] hover:text-[var(--bg-app)]"
+          >
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+              <Github size={13} fill="currentColor" strokeWidth={0} />
+              <span className="mono text-[10px] font-bold tracking-[0.04em] text-[var(--bg-app)]">STAR</span>
+            </a>
+          </Button>
         </div>
       </div>
     </header>
